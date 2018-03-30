@@ -21,27 +21,24 @@ namespace Glass {
 
 	struct NullPropertyList {};
 
-	template <typename H, typename T> struct PropertyList {
-		using head = H;
-		using tail = T;
-	};
+	template <typename... Ts> struct PropertyList {};
 
 	template <typename T> struct PropertyListBuilder {};
 
-	template <typename H, typename T>
-	struct PropertyListBuilder<PropertyList<H, T>> : PropertyListBuilder<T> {
-		static vector<unique_ptr<internal::PropertyDefinition>> Build() {
-			auto propertyDefinitionList = PropertyListBuilder<T>::Build();
-			propertyDefinitionList.emplace_back(new H{});
-			return propertyDefinitionList;
-		}
-	};
+	using PropertyDefinitionList = vector<unique_ptr<internal::PropertyDefinition>>;
 
-	template <typename H> struct PropertyListBuilder<PropertyList<H, NullPropertyList>> {
-		static vector<unique_ptr<internal::PropertyDefinition>> Build() {
-			vector<unique_ptr<internal::PropertyDefinition>> propertyDefinitionList;
-			propertyDefinitionList.emplace_back(new H{});
-			return propertyDefinitionList;
-		}
-	};
+	inline PropertyDefinitionList CreatePropertyDefinitionListForPropertyList(PropertyList<>) {
+		PropertyDefinitionList propertyDefinitionList;
+		propertyDefinitionList.reserve(20u);
+		return propertyDefinitionList;
+	}
+
+	template <typename T, typename... Ts>
+	inline PropertyDefinitionList
+	    CreatePropertyDefinitionListForPropertyList(PropertyList<T, Ts...>) {
+		auto propertyDefinitionList =
+		    CreatePropertyDefinitionListForPropertyList(PropertyList<Ts...>{});
+		propertyDefinitionList.emplace_back(make_unique<T>());
+		return propertyDefinitionList;
+	}
 }

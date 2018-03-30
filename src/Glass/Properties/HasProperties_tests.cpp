@@ -42,8 +42,7 @@ public:
 			inline static const auto name = "FloatValue";
 			inline static const Glass::FloatPropertyType::type defaultValue = EXPECTED_FLOAT;
 		};
-		using Properties =
-		    Glass::PropertyList<IntValue, Glass::PropertyList<FloatValue, Glass::NullPropertyList>>;
+		using Properties = Glass::PropertyList<IntValue, FloatValue>;
 
 		Glass::optional<int32_t> latestIntValue;
 	};

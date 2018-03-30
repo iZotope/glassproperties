@@ -58,7 +58,7 @@ namespace Glass {
 
 	protected:
 		HasProperties() {
-			for (auto& p : PropertyListBuilder<typename T::Properties>::Build()) {
+			for (auto& p : CreatePropertyDefinitionListForPropertyList(typename T::Properties{})) {
 				auto property = m_propertyHolder.CreateProperty(p->GetName(), p->GetTypeName(),
 				                                                p->GetDefaultValue());
 				auto didSet = p->GetDidSetFn(static_cast<T*>(this));
