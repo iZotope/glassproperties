@@ -48,18 +48,18 @@ namespace Glass {
 		std::string GetTypeName() const override final { return property_type::name; }
 		boost::any GetDefaultValue() const override final { return impl_type::defaultValue; }
 		std::optional<std::function<void()>> GetDidSetFn(boost::any this_) const override final {
-			return getDidSetFn(this_);
+			return getDidSetFn<V>(this_);
 		}
 
 	private:
-		template <typename R = std::enable_if<std::is_void<V>::value, std::nullopt_t>::type>
-		typename R getDidSetFn(boost::any, float = 0) const {
+		template <typename W, typename R = typename std::enable_if<std::is_void<W>::value, std::nullopt_t>::type>
+		R getDidSetFn(boost::any, float = 0) const {
 			return std::nullopt;
 		}
 
-		template <typename R = std::enable_if<!std::is_void<V>::value,
+		template <typename W, typename R = typename std::enable_if<!std::is_void<W>::value,
 		                                      std::optional<std::function<void()>>>::type>
-		typename R getDidSetFn(boost::any this_, int = 0) const {
+		R getDidSetFn(boost::any this_, int = 0) const {
 			V* vThis;
 			try {
 				vThis = boost::any_cast<V*>(this_);

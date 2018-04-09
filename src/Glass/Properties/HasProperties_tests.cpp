@@ -24,7 +24,7 @@ IZ_POP_ALL_WARNINGS
 
 namespace {
 	const int32_t EXPECTED_INT = 65;
-	const float EXPECTED_FLOAT = 42.f;
+	constexpr float EXPECTED_FLOAT = 42.f;
 }
 
 class PropertyHolderTests : public ::testing::Test {
@@ -33,7 +33,7 @@ public:
 		struct IntValue
 		    : Glass::PropertyDefinition<IntValue, Glass::IntPropertyType, PropertyHolder> {
 			static constexpr const char* const name = "IntValue";
-			static const Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
+			static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
 			static void didSet(PropertyHolder* this_) {
 				this_->latestIntValue = this_->GetProperty<IntValue>();
 			}
