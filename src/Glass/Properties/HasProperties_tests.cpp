@@ -27,14 +27,14 @@ namespace {
 	constexpr float EXPECTED_FLOAT = 42.f;
 }
 
-class PropertyHolderTests : public ::testing::Test {
+class HasPropertiesTests : public ::testing::Test {
 public:
-	struct PropertyHolder : public Glass::HasProperties<PropertyHolder> {
+	struct TestClass : public Glass::HasProperties<TestClass> {
 		struct IntValue
-		    : Glass::PropertyDefinition<IntValue, Glass::IntPropertyType, PropertyHolder> {
+		    : Glass::PropertyDefinition<IntValue, Glass::IntPropertyType, TestClass> {
 			static constexpr const char* const name = "IntValue";
 			static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
-			static void didSet(PropertyHolder* this_) {
+			static void didSet(TestClass* this_) {
 				this_->latestIntValue = this_->GetProperty<IntValue>();
 			}
 		};
@@ -47,56 +47,56 @@ public:
 		Glass::optional<int32_t> latestIntValue;
 	};
 
-	PropertyHolder p;
+	TestClass p;
 };
 
-TEST_F(PropertyHolderTests, DefaultValue) {
-	EXPECT_EQ(EXPECTED_INT, p.GetProperty<PropertyHolder::IntValue>());
-	EXPECT_EQ(EXPECTED_FLOAT, p.GetProperty<PropertyHolder::FloatValue>());
+TEST_F(HasPropertiesTests, DefaultValue) {
+	EXPECT_EQ(EXPECTED_INT, p.GetProperty<TestClass::IntValue>());
+	EXPECT_EQ(EXPECTED_FLOAT, p.GetProperty<TestClass::FloatValue>());
 }
 
-TEST_F(PropertyHolderTests, SetGet) {
-	p.SetProperty<PropertyHolderTests::PropertyHolder::IntValue>(-5);
-	p.SetProperty<PropertyHolderTests::PropertyHolder::FloatValue>(5.0f);
-	EXPECT_EQ(-5, p.GetProperty<PropertyHolderTests::PropertyHolder::IntValue>());
-	EXPECT_EQ(5.0f, p.GetProperty<PropertyHolderTests::PropertyHolder::FloatValue>());
+TEST_F(HasPropertiesTests, SetGet) {
+	p.SetProperty<TestClass::IntValue>(-5);
+	p.SetProperty<TestClass::FloatValue>(5.0f);
+	EXPECT_EQ(-5, p.GetProperty<TestClass::IntValue>());
+	EXPECT_EQ(5.0f, p.GetProperty<TestClass::FloatValue>());
 }
 
-TEST_F(PropertyHolderTests, DidSet) {
-	p.SetProperty<PropertyHolderTests::PropertyHolder::IntValue>(-5);
+TEST_F(HasPropertiesTests, DidSet) {
+	p.SetProperty<TestClass::IntValue>(-5);
 	ASSERT_TRUE(static_cast<bool>(p.latestIntValue));
 	EXPECT_EQ(-5, *p.latestIntValue);
 }
 
-TEST_F(PropertyHolderTests, SerializedValue) {
+TEST_F(HasPropertiesTests, SerializedValue) {
 	const int serializedInt = 9;
 	const float serializedFloat = -3.141f;
 
-	p.SetSerializedValue<PropertyHolderTests::PropertyHolder::IntValue>(serializedInt);
-	p.SetSerializedValue<PropertyHolderTests::PropertyHolder::FloatValue>(serializedFloat);
+	p.SetSerializedValue<TestClass::IntValue>(serializedInt);
+	p.SetSerializedValue<TestClass::FloatValue>(serializedFloat);
 
-	EXPECT_EQ(serializedInt, p.GetProperty<PropertyHolderTests::PropertyHolder::IntValue>());
-	EXPECT_EQ(serializedInt, p.GetSerializedValue<PropertyHolderTests::PropertyHolder::IntValue>());
-	EXPECT_EQ(serializedFloat, p.GetProperty<PropertyHolderTests::PropertyHolder::FloatValue>());
+	EXPECT_EQ(serializedInt, p.GetProperty<TestClass::IntValue>());
+	EXPECT_EQ(serializedInt, p.GetSerializedValue<TestClass::IntValue>());
+	EXPECT_EQ(serializedFloat, p.GetProperty<TestClass::FloatValue>());
 	EXPECT_EQ(serializedFloat,
-	          p.GetSerializedValue<PropertyHolderTests::PropertyHolder::FloatValue>());
+	          p.GetSerializedValue<TestClass::FloatValue>());
 }
 
-TEST_F(PropertyHolderTests, SetSerializedValueDoesNotOverrideLiveValue) {
+TEST_F(HasPropertiesTests, SetSerializedValueDoesNotOverrideLiveValue) {
 	const float serializedFloat1 = -3.141f;
 	const float serializedFloat2 = -2.4f;
 	const float liveFloat = 2.7f;
 
-	p.SetSerializedValue<PropertyHolderTests::PropertyHolder::FloatValue>(serializedFloat1);
+	p.SetSerializedValue<TestClass::FloatValue>(serializedFloat1);
 
-	EXPECT_EQ(serializedFloat1, p.GetProperty<PropertyHolderTests::PropertyHolder::FloatValue>());
+	EXPECT_EQ(serializedFloat1, p.GetProperty<TestClass::FloatValue>());
 	EXPECT_EQ(serializedFloat1,
-	          p.GetSerializedValue<PropertyHolderTests::PropertyHolder::FloatValue>());
+	          p.GetSerializedValue<TestClass::FloatValue>());
 
-	p.SetProperty<PropertyHolderTests::PropertyHolder::FloatValue>(liveFloat);
-	p.SetSerializedValue<PropertyHolderTests::PropertyHolder::FloatValue>(serializedFloat2);
+	p.SetProperty<TestClass::FloatValue>(liveFloat);
+	p.SetSerializedValue<TestClass::FloatValue>(serializedFloat2);
 
-	EXPECT_EQ(liveFloat, p.GetProperty<PropertyHolderTests::PropertyHolder::FloatValue>());
+	EXPECT_EQ(liveFloat, p.GetProperty<TestClass::FloatValue>());
 	EXPECT_EQ(serializedFloat2,
-	          p.GetSerializedValue<PropertyHolderTests::PropertyHolder::FloatValue>());
+	          p.GetSerializedValue<TestClass::FloatValue>());
 }
