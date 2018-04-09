@@ -32,15 +32,15 @@ public:
 	struct PropertyHolder : public Glass::HasProperties<PropertyHolder> {
 		struct IntValue
 		    : Glass::PropertyDefinition<IntValue, Glass::IntPropertyType, PropertyHolder> {
-			inline static const auto name = "IntValue";
-			inline static const Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
+			static constexpr const char* const name = "IntValue";
+			static const Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
 			static void didSet(PropertyHolder* this_) {
 				this_->latestIntValue = this_->GetProperty<IntValue>();
 			}
 		};
 		struct FloatValue : Glass::PropertyDefinition<FloatValue, Glass::FloatPropertyType> {
-			inline static const auto name = "FloatValue";
-			inline static const Glass::FloatPropertyType::type defaultValue = EXPECTED_FLOAT;
+			static constexpr const char* const name = "FloatValue";
+			static constexpr const Glass::FloatPropertyType::type defaultValue = EXPECTED_FLOAT;
 		};
 		using Properties = Glass::PropertyList<IntValue, FloatValue>;
 
