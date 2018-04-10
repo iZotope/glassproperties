@@ -15,6 +15,7 @@
 
 #include "iZBase/common/common.h"
 
+#include "Glass/Properties/HasPropertiesBase.h"
 #include "Glass/Properties/HasProperties.h"
 #include "Glass/Properties/Types.h"
 
@@ -29,7 +30,7 @@ namespace {
 
 class HasPropertiesTests : public ::testing::Test {
 public:
-	struct TestClass : public Glass::HasProperties<TestClass> {
+	struct TestClass : public Glass::HasPropertiesBase, public Glass::HasProperties<TestClass> {
 		struct IntValue
 		    : Glass::PropertyDefinition<IntValue, Glass::IntPropertyType, TestClass> {
 			static constexpr const char* const name = "IntValue";
