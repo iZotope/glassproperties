@@ -31,7 +31,7 @@ namespace Glass {
 		}
 
 		template <typename P> void SetProperty(typename P::property_type::type value) {
-			getPropertyHolder()->template SetProperty(P::name, value);
+			getPropertyHolder()->template SetProperty<typename P::property_type::type>(P::name, value);
 		}
 
 		template <typename P> typename P::property_type::type GetSerializedValue() const {
@@ -40,14 +40,14 @@ namespace Glass {
 		}
 
 		template <typename P> void SetSerializedValue(typename P::property_type::type value) {
-			getPropertyHolder()->template SetSerializedValue(P::name, value);
+			getPropertyHolder()->template SetSerializedValue<typename P::property_type::type>(P::name, value);
 		}
 
 	protected:
 		HasProperties() {
 
 			for (auto& p : CreatePropertyDefinitionListForPropertyList(typename T::Properties{})) {
-				auto property = getPropertyHolder()->template CreateProperty(p->GetName(), p->GetTypeName(),
+				auto property = getPropertyHolder()->CreateProperty(p->GetName(), p->GetTypeName(),
 				                                                p->GetDefaultValue());
 				auto didSet = p->GetDidSetFn(static_cast<T*>(this));
 				if (didSet) {
