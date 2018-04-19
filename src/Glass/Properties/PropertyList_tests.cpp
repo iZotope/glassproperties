@@ -38,13 +38,8 @@ namespace detail {
 	using Properties = PropertyList<ThingOne, ThingTwo>;
 
 	template <typename... T>
-	struct TestClassT : public HasPropertiesBase, public HasProperties<TestClassT<T...>> {};
-}
-
-namespace Glass {
-	template <typename... T> struct PropertiesOf<detail::TestClassT<T...>> {
-		using type = detail::Properties;
-	};
+	struct TestClassT : public HasPropertiesBase,
+	                    public HasProperties<Properties, TestClassT<T...>> {};
 }
 
 namespace detail {
@@ -52,12 +47,12 @@ namespace detail {
 }
 using TestClass = detail::TestClassT<>;
 
-static_assert(PropertyListHasType<typename PropertiesOf<TestClass>::type, detail::ThingOne>::value,
+static_assert(PropertyListHasType<typename TestClass::Properties, detail::ThingOne>::value,
               "PropertyListHasType<Properties, ThingOne>::value == false, "
               "should be true.");
-static_assert(PropertyListHasType<typename PropertiesOf<TestClass>::type, detail::ThingTwo>::value,
+static_assert(PropertyListHasType<typename TestClass::Properties, detail::ThingTwo>::value,
               "PropertyListHasType<Properties, ThingOne>::value == false, "
               "should be true.");
-static_assert(!PropertyListHasType<typename PropertiesOf<TestClass>::type, detail::Cat>::value,
+static_assert(!PropertyListHasType<typename TestClass::Properties, detail::Cat>::value,
               "PropertyListHasType<Properties, ThingOne>::value == true, "
               "should be false.");

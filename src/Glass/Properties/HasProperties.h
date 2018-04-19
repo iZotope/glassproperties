@@ -20,8 +20,6 @@
 
 namespace Glass {
 
-	template <typename T> struct PropertiesOf;
-
 	namespace internal {}
 
 	//! Mixin for object that implement glass properties
@@ -30,15 +28,14 @@ namespace Glass {
 	//! HasPropertiesBase
 	//!
 	//! HasProperties<T> expects that there is a PropertyList T::Properties
-	template <typename T, typename U = T> class HasProperties {
+	template <typename Ps, typename U> class HasProperties {
 	public:
-		static_assert(IsPropertyList<typename PropertiesOf<T>::type>::value,
-		              "PropertiesOf must be specialized for T as a PropertyList");
+		static_assert(IsPropertyList<Ps>::value, "Ps must be a PropertyList");
+		using Properties = Ps;
 
 		template <typename P>
-		typename std::enable_if<
-		    PropertyListHasType<typename PropertiesOf<T>::type, typename P::impl_type>::value,
-		    typename P::property_type::type>::type
+		typename std::enable_if<PropertyListHasType<Ps, typename P::impl_type>::value,
+		                        typename P::property_type::type>::type
 		GetProperty() const {
 			return getPropertyHolder()
 			    .template GetProperty<typename P::property_type::type>(P::name)
@@ -63,11 +60,10 @@ namespace Glass {
 
 	protected:
 		HasProperties() {
-			for (auto& p :
-			     CreatePropertyDefinitionListForPropertyList(typename PropertiesOf<T>::type{})) {
+			for (auto& p : CreatePropertyDefinitionListForPropertyList(Ps{})) {
 				auto property = getPropertyHolder().CreateProperty(p->GetName(), p->GetTypeName(),
 				                                                   p->GetDefaultValue());
-				auto didSet = p->GetDidSetFn(static_cast<T*>(this));
+				auto didSet = p->GetDidSetFn(static_cast<U*>(this));
 				if (didSet) {
 					property.GetSignal()->Connect(&getTrackable(), *didSet);
 				}

@@ -62,18 +62,13 @@ namespace {
 	template <typename... T> using Properties = Glass::PropertyList<IntValueT<T...>, FloatValue>;
 
 	template <typename... T>
-	struct TestClassT : public Glass::HasPropertiesBase,
-	                    public Glass::HasProperties<
-	                        TestClassT<T...>> /*, public BackgroundColorMixin<TestClass>*/ {
+	struct TestClassT
+	    : public Glass::HasPropertiesBase,
+	      public Glass::HasProperties<
+	          Properties<T...>, TestClassT<T...>> /*, public BackgroundColorMixin<TestClass>*/ {
 
 		Glass::optional<int32_t> latestIntValue;
 		Glass::optional<Glass::Color> latestBackgroundColorValue;
-	};
-}
-
-namespace Glass {
-	template <typename... T> struct PropertiesOf<TestClassT<T...>> {
-		using type = Properties<T...>;
 	};
 }
 
