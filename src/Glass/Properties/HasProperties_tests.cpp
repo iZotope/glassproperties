@@ -31,7 +31,7 @@ namespace {
 }
 
 namespace {
-	template <typename... T> struct TestClassT;
+	struct TestClass;
 
 	//    template <typename T>
 	//    struct BackgroundColorMixin : public
@@ -45,35 +45,27 @@ namespace {
 	// EXPECTED_COLOR;
 	//        };
 	//    };
-	template <typename... T>
-	struct IntValueT
-	    : Glass::PropertyDefinition<IntValueT<T...>, Glass::IntPropertyType, TestClassT<T...>> {
+	struct IntValue : Glass::PropertyDefinition<IntValue, Glass::IntPropertyType, TestClass> {
 		static constexpr const char* const name = "IntValue";
 		static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
-		static void didSet(TestClassT<T...>* this_) {
-			this_->latestIntValue = this_->template GetProperty<IntValueT<T...>>();
+		template <typename T> static void didSet(T* this_) {
+			this_->latestIntValue = this_->template GetProperty<IntValue>();
 		}
 	};
-	using IntValue = IntValueT<>;
 	struct FloatValue : Glass::PropertyDefinition<FloatValue, Glass::FloatPropertyType> {
 		static constexpr const char* const name = "FloatValue";
 		static constexpr const Glass::FloatPropertyType::type defaultValue = EXPECTED_FLOAT;
 	};
-	template <typename... T> using Properties = Glass::PropertyList<IntValueT<T...>, FloatValue>;
+	using Properties = Glass::PropertyList<IntValue, FloatValue>;
 
-	template <typename... T>
-	struct TestClassT
+	struct TestClass
 	    : public Glass::HasPropertiesBase,
-	      public Glass::HasProperties<
-	          Properties<T...>, TestClassT<T...>> /*, public BackgroundColorMixin<TestClass>*/ {
+	      public Glass::HasProperties<Properties,
+	                                  TestClass> /*, public BackgroundColorMixin<TestClass>*/ {
 
 		Glass::optional<int32_t> latestIntValue;
 		Glass::optional<Glass::Color> latestBackgroundColorValue;
 	};
-}
-
-namespace {
-	using TestClass = TestClassT<>;
 }
 
 class HasPropertiesTests : public ::testing::Test {

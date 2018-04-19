@@ -37,22 +37,20 @@ namespace detail {
 
 	using Properties = PropertyList<ThingOne, ThingTwo>;
 
-	template <typename... T>
-	struct TestClassT : public HasPropertiesBase,
-	                    public HasProperties<Properties, TestClassT<T...>> {};
+	struct TestClass : public HasPropertiesBase, public HasProperties<Properties, TestClass> {};
 }
 
-namespace detail {
-	template struct TestClassT<>;
-}
-using TestClass = detail::TestClassT<>;
+using detail::ThingOne;
+using detail::ThingTwo;
+using detail::Cat;
+using detail::TestClass;
 
-static_assert(PropertyListHasType<typename TestClass::Properties, detail::ThingOne>::value,
+static_assert(PropertyListHasType<typename TestClass::Properties, ThingOne>::value,
               "PropertyListHasType<Properties, ThingOne>::value == false, "
               "should be true.");
-static_assert(PropertyListHasType<typename TestClass::Properties, detail::ThingTwo>::value,
+static_assert(PropertyListHasType<typename TestClass::Properties, ThingTwo>::value,
               "PropertyListHasType<Properties, ThingOne>::value == false, "
               "should be true.");
-static_assert(!PropertyListHasType<typename TestClass::Properties, detail::Cat>::value,
+static_assert(!PropertyListHasType<typename TestClass::Properties, Cat>::value,
               "PropertyListHasType<Properties, ThingOne>::value == true, "
               "should be false.");
