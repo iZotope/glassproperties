@@ -54,4 +54,10 @@ namespace Glass {
 		propertyDefinitionList.emplace_back(make_unique<T>());
 		return propertyDefinitionList;
 	}
+
+	template <typename T> struct IsPropertyList { static constexpr bool value = false; };
+
+	template <typename... Ts> struct IsPropertyList<PropertyList<Ts...>> {
+		static constexpr bool value = true;
+	};
 }

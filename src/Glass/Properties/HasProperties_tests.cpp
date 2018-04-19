@@ -27,56 +27,75 @@ IZ_POP_ALL_WARNINGS
 namespace {
 	const int32_t EXPECTED_INT = 65;
 	constexpr float EXPECTED_FLOAT = 42.f;
-	constexpr Glass::Color EXPECTED_COLOR{1.f, .8f, .2f};
+	//	constexpr Glass::Color EXPECTED_COLOR{1.f, .8f, .2f};
 }
 
-class HasPropertiesTests : public ::testing::Test {
-public:
-	//	template <typename T>
-	//	struct BackgroundColorMixin : public Glass::HasProperties<BackgroundColorMixin<T>, T> {
-	//		struct BackgroundColor : Glass::PropertyDefinition<BackgroundColor,
-	//Glass::ColorPropertyType> { 			static constexpr const char* const name = "Background
-	//Color"; 			static constexpr Glass::ColorPropertyType::type defaultValue =
-	//EXPECTED_COLOR;
-	//		};
-	//	};
-	struct TestClass
-	    : public Glass::HasPropertiesBase,
-	      public Glass::HasProperties<
-	          HasPropertiesTests::TestClass,
-	          HasPropertiesTests::TestClass> /*, public BackgroundColorMixin<TestClass>*/ {
+namespace {
+	template <typename... T> struct TestClassT;
 
-		struct IntValue
-		    : Glass::PropertyDefinition<IntValue, Glass::IntPropertyType, TestClass> {
-			static constexpr const char* const name = "IntValue";
-			static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
-			//			static void didSet(TestClass* this_) {
-			//				this_->latestIntValue = this_->GetProperty<IntValue>();
-			//			}
-		};
-		struct FloatValue : Glass::PropertyDefinition<FloatValue, Glass::FloatPropertyType> {
-			static constexpr const char* const name = "FloatValue";
-			static constexpr const Glass::FloatPropertyType::type defaultValue = EXPECTED_FLOAT;
-		};
-		using Properties = Glass::PropertyList<IntValue, FloatValue>;
+	//    template <typename T>
+	//    struct BackgroundColorMixin : public
+	//    Glass::HasProperties<BackgroundColorMixin<T>, T> {
+	//        struct BackgroundColor :
+	//        Glass::PropertyDefinition<BackgroundColor,
+	// Glass::ColorPropertyType> {             static constexpr const char*
+	// const name = "Background
+	// Color";             static constexpr Glass::ColorPropertyType::type
+	// defaultValue =
+	// EXPECTED_COLOR;
+	//        };
+	//    };
+	template <typename... T>
+	struct IntValueT
+	    : Glass::PropertyDefinition<IntValueT<T...>, Glass::IntPropertyType, TestClassT<T...>> {
+		static constexpr const char* const name = "IntValue";
+		static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
+		template <typename U> static void didSet(U* this_) {
+			this_->latestIntValue = this_->template GetProperty<IntValueT<T...>>();
+		}
+	};
+	using IntValue = IntValueT<>;
+	struct FloatValue : Glass::PropertyDefinition<FloatValue, Glass::FloatPropertyType> {
+		static constexpr const char* const name = "FloatValue";
+		static constexpr const Glass::FloatPropertyType::type defaultValue = EXPECTED_FLOAT;
+	};
+	template <typename... T> using Properties = Glass::PropertyList<IntValueT<T...>, FloatValue>;
+
+	template <typename... T>
+	struct TestClassT : public Glass::HasPropertiesBase,
+	                    public Glass::HasProperties<
+	                        TestClassT<T...>> /*, public BackgroundColorMixin<TestClass>*/ {
 
 		Glass::optional<int32_t> latestIntValue;
 		Glass::optional<Glass::Color> latestBackgroundColorValue;
 	};
+}
 
+namespace Glass {
+	template <typename... T> struct PropertiesOf<TestClassT<T...>> {
+		using type = Properties<T...>;
+	};
+}
+
+namespace {
+	using TestClass = TestClassT<>;
+}
+
+class HasPropertiesTests : public ::testing::Test {
+public:
 	TestClass p;
 };
 
 TEST_F(HasPropertiesTests, DefaultValue) {
-	EXPECT_EQ(EXPECTED_INT, p.GetProperty<TestClass::IntValue>());
-	EXPECT_EQ(EXPECTED_FLOAT, p.GetProperty<TestClass::FloatValue>());
+	EXPECT_EQ(EXPECTED_INT, p.GetProperty<IntValue>());
+	EXPECT_EQ(EXPECTED_FLOAT, p.GetProperty<FloatValue>());
 }
 
 TEST_F(HasPropertiesTests, SetGet) {
-	p.SetProperty<TestClass::IntValue>(-5);
-	p.SetProperty<TestClass::FloatValue>(5.0f);
-	EXPECT_EQ(-5, p.GetProperty<TestClass::IntValue>());
-	EXPECT_EQ(5.0f, p.GetProperty<TestClass::FloatValue>());
+	p.SetProperty<IntValue>(-5);
+	p.SetProperty<FloatValue>(5.0f);
+	EXPECT_EQ(-5, p.GetProperty<IntValue>());
+	EXPECT_EQ(5.0f, p.GetProperty<FloatValue>());
 }
 
 
@@ -90,14 +109,13 @@ TEST_F(HasPropertiesTests, SerializedValue) {
 	const int serializedInt = 9;
 	const float serializedFloat = -3.141f;
 
-	p.SetSerializedValue<TestClass::IntValue>(serializedInt);
-	p.SetSerializedValue<TestClass::FloatValue>(serializedFloat);
+	p.SetSerializedValue<IntValue>(serializedInt);
+	p.SetSerializedValue<FloatValue>(serializedFloat);
 
-	EXPECT_EQ(serializedInt, p.GetProperty<TestClass::IntValue>());
-	EXPECT_EQ(serializedInt, p.GetSerializedValue<TestClass::IntValue>());
-	EXPECT_EQ(serializedFloat, p.GetProperty<TestClass::FloatValue>());
-	EXPECT_EQ(serializedFloat,
-	          p.GetSerializedValue<TestClass::FloatValue>());
+	EXPECT_EQ(serializedInt, p.GetProperty<IntValue>());
+	EXPECT_EQ(serializedInt, p.GetSerializedValue<IntValue>());
+	EXPECT_EQ(serializedFloat, p.GetProperty<FloatValue>());
+	EXPECT_EQ(serializedFloat, p.GetSerializedValue<FloatValue>());
 }
 
 TEST_F(HasPropertiesTests, SetSerializedValueDoesNotOverrideLiveValue) {
@@ -105,18 +123,16 @@ TEST_F(HasPropertiesTests, SetSerializedValueDoesNotOverrideLiveValue) {
 	const float serializedFloat2 = -2.4f;
 	const float liveFloat = 2.7f;
 
-	p.SetSerializedValue<TestClass::FloatValue>(serializedFloat1);
+	p.SetSerializedValue<FloatValue>(serializedFloat1);
 
-	EXPECT_EQ(serializedFloat1, p.GetProperty<TestClass::FloatValue>());
-	EXPECT_EQ(serializedFloat1,
-	          p.GetSerializedValue<TestClass::FloatValue>());
+	EXPECT_EQ(serializedFloat1, p.GetProperty<FloatValue>());
+	EXPECT_EQ(serializedFloat1, p.GetSerializedValue<FloatValue>());
 
-	p.SetProperty<TestClass::FloatValue>(liveFloat);
-	p.SetSerializedValue<TestClass::FloatValue>(serializedFloat2);
+	p.SetProperty<FloatValue>(liveFloat);
+	p.SetSerializedValue<FloatValue>(serializedFloat2);
 
-	EXPECT_EQ(liveFloat, p.GetProperty<TestClass::FloatValue>());
-	EXPECT_EQ(serializedFloat2,
-	          p.GetSerializedValue<TestClass::FloatValue>());
+	EXPECT_EQ(liveFloat, p.GetProperty<FloatValue>());
+	EXPECT_EQ(serializedFloat2, p.GetSerializedValue<FloatValue>());
 }
 
 // TEST_F(HasPropertiesTests, Mixin) {

@@ -21,27 +21,43 @@
 
 using namespace Glass;
 
-struct ThingOne : public PropertyDefinition<ThingOne, IntPropertyType> {
-	static constexpr auto name = "Thing 1";
-	static constexpr Glass::IntPropertyType::type defaultValue = 1;
-};
-struct ThingTwo : public PropertyDefinition<ThingTwo, IntPropertyType> {
-	static constexpr auto name = "Thing 2";
-	static constexpr Glass::IntPropertyType::type defaultValue = 2;
-};
-struct Cat : public PropertyDefinition<ThingOne, IntPropertyType> {
-	static constexpr auto name = "Cat";
-	static constexpr Glass::IntPropertyType::type defaultValue = 0;
-};
-
-struct Stuff : public HasPropertiesBase, public HasProperties<Stuff, Stuff> {
+namespace detail {
+	struct ThingOne : public PropertyDefinition<ThingOne, IntPropertyType> {
+		static constexpr auto name = "Thing 1";
+		static constexpr Glass::IntPropertyType::type defaultValue = 1;
+	};
+	struct ThingTwo : public PropertyDefinition<ThingTwo, IntPropertyType> {
+		static constexpr auto name = "Thing 2";
+		static constexpr Glass::IntPropertyType::type defaultValue = 2;
+	};
+	struct Cat : public PropertyDefinition<ThingOne, IntPropertyType> {
+		static constexpr auto name = "Cat";
+		static constexpr Glass::IntPropertyType::type defaultValue = 0;
+	};
 
 	using Properties = PropertyList<ThingOne, ThingTwo>;
-};
 
-static_assert(PropertyListHasType<Stuff::Properties, ThingOne>::value,
-              "PropertyListHasType<Properties, ThingOne>::value == false, should be true.");
-static_assert(PropertyListHasType<Stuff::Properties, ThingTwo>::value,
-              "PropertyListHasType<Properties, ThingOne>::value == false, should be true.");
-static_assert(!PropertyListHasType<Stuff::Properties, Cat>::value,
-              "PropertyListHasType<Properties, ThingOne>::value == true, should be false.");
+	template <typename... T>
+	struct TestClassT : public HasPropertiesBase, public HasProperties<TestClassT<T...>> {};
+}
+
+namespace Glass {
+	template <typename... T> struct PropertiesOf<detail::TestClassT<T...>> {
+		using type = detail::Properties;
+	};
+}
+
+namespace detail {
+	template struct TestClassT<>;
+}
+using TestClass = detail::TestClassT<>;
+
+static_assert(PropertyListHasType<typename PropertiesOf<TestClass>::type, detail::ThingOne>::value,
+              "PropertyListHasType<Properties, ThingOne>::value == false, "
+              "should be true.");
+static_assert(PropertyListHasType<typename PropertiesOf<TestClass>::type, detail::ThingTwo>::value,
+              "PropertyListHasType<Properties, ThingOne>::value == false, "
+              "should be true.");
+static_assert(!PropertyListHasType<typename PropertiesOf<TestClass>::type, detail::Cat>::value,
+              "PropertyListHasType<Properties, ThingOne>::value == true, "
+              "should be false.");

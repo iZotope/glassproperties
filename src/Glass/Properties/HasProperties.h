@@ -19,17 +19,26 @@
 #include "Glass/Properties/PropertyList.h"
 
 namespace Glass {
+
+	template <typename T> struct PropertiesOf;
+
 	namespace internal {}
+
 	//! Mixin for object that implement glass properties
 	//!
-	//! typename T: type inheriting from HasProperties, must be a subclass of HasPropertiesBase
+	//! typename T: type inheriting from HasProperties, must be a subclass of
+	//! HasPropertiesBase
 	//!
 	//! HasProperties<T> expects that there is a PropertyList T::Properties
 	template <typename T, typename U = T> class HasProperties {
 	public:
+		static_assert(IsPropertyList<typename PropertiesOf<T>::type>::value,
+		              "PropertiesOf must be specialized for T as a PropertyList");
+
 		template <typename P>
-		typename std::enable_if<PropertyListHasType<Halp, typename P::property_type::type>::value,
-		                        typename P::property_type::type>::type
+		typename std::enable_if<
+		    PropertyListHasType<typename PropertiesOf<T>::type, typename P::impl_type>::value,
+		    typename P::property_type::type>::type
 		GetProperty() const {
 			return getPropertyHolder()
 			    .template GetProperty<typename P::property_type::type>(P::name)
@@ -54,7 +63,8 @@ namespace Glass {
 
 	protected:
 		HasProperties() {
-			for (auto& p : CreatePropertyDefinitionListForPropertyList(typename T::Properties{})) {
+			for (auto& p :
+			     CreatePropertyDefinitionListForPropertyList(typename PropertiesOf<T>::type{})) {
 				auto property = getPropertyHolder().CreateProperty(p->GetName(), p->GetTypeName(),
 				                                                   p->GetDefaultValue());
 				auto didSet = p->GetDidSetFn(static_cast<T*>(this));

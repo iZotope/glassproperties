@@ -63,7 +63,7 @@ namespace Glass {
 			V* vThis;
 			try {
 				vThis = boost::any_cast<V*>(this_);
-				std::function<void()> fn = std::bind(&T::didSet, vThis);
+				std::function<void()> fn = [vThis]() { T::didSet(vThis); };
 				return fn;
 			} catch (boost::bad_any_cast&) {
 				ZERROR("Failed to cast this to correct type to generate didSet callback.");
