@@ -19,52 +19,60 @@
 #include "Glass/Properties/PropertyList.h"
 
 namespace Glass {
+	namespace internal {}
 	//! Mixin for object that implement glass properties
 	//!
 	//! typename T: type inheriting from HasProperties, must be a subclass of HasPropertiesBase
 	//!
 	//! HasProperties<T> expects that there is a PropertyList T::Properties
-	template <typename T> class HasProperties {
+	template <typename T, typename U = T> class HasProperties {
 	public:
-		template <typename P> typename P::property_type::type GetProperty() const {
-			return getPropertyHolder()->template GetProperty<typename P::property_type::type>(P::name).cast();
+		template <typename P>
+		typename std::enable_if<PropertyListHasType<Halp, typename P::property_type::type>::value,
+		                        typename P::property_type::type>::type
+		GetProperty() const {
+			return getPropertyHolder()
+			    .template GetProperty<typename P::property_type::type>(P::name)
+			    .cast();
 		}
 
 		template <typename P> void SetProperty(typename P::property_type::type value) {
-			getPropertyHolder()->template SetProperty<typename P::property_type::type>(P::name, value);
+			getPropertyHolder().template SetProperty<typename P::property_type::type>(P::name,
+			                                                                          value);
 		}
 
 		template <typename P> typename P::property_type::type GetSerializedValue() const {
-			return getPropertyHolder()->template GetSerializedValue<typename P::property_type::type>(P::name)
+			return getPropertyHolder()
+			    .template GetSerializedValue<typename P::property_type::type>(P::name)
 			    .cast();
 		}
 
 		template <typename P> void SetSerializedValue(typename P::property_type::type value) {
-			getPropertyHolder()->template SetSerializedValue<typename P::property_type::type>(P::name, value);
+			getPropertyHolder().template SetSerializedValue<typename P::property_type::type>(
+			    P::name, value);
 		}
 
 	protected:
 		HasProperties() {
-
 			for (auto& p : CreatePropertyDefinitionListForPropertyList(typename T::Properties{})) {
-				auto property = getPropertyHolder()->CreateProperty(p->GetName(), p->GetTypeName(),
-				                                                p->GetDefaultValue());
+				auto property = getPropertyHolder().CreateProperty(p->GetName(), p->GetTypeName(),
+				                                                   p->GetDefaultValue());
 				auto didSet = p->GetDidSetFn(static_cast<T*>(this));
 				if (didSet) {
-					property.GetSignal()->Connect(getTrackable(), *didSet);
+					property.GetSignal()->Connect(&getTrackable(), *didSet);
 				}
 			}
 		}
 
 	private:
-		Util::PropertyHolder* getPropertyHolder() const {
-			static_assert(std::is_base_of<HasPropertiesBase,T>::value, "T must be a subclass of Glass::HasPropertiesBase.");
-			return const_cast<Util::PropertyHolder*>(&static_cast<const T*>(this)->m_propertyHolder);
+		const Util::PropertyHolder& getPropertyHolder() const {
+			return static_cast<const U*>(this)->m_propertyHolder;
 		}
 
-		Trackable* getTrackable() const {
-			static_assert(std::is_base_of<HasPropertiesBase,T>::value, "T must be a subclass of Glass::HasPropertiesBase.");
-			return const_cast<Trackable*>(&static_cast<const T*>(this)->m_trackable);
+		Util::PropertyHolder& getPropertyHolder() {
+			return static_cast<U*>(this)->m_propertyHolder;
 		}
+
+		Trackable& getTrackable() { return static_cast<U*>(this)->m_trackable; }
 	};
 }

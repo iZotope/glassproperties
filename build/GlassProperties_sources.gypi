@@ -5,4 +5,5 @@
                    '../src/Glass/Properties/HasProperties_tests.cpp',
                    '../src/Glass/Properties/PropertyDefinition.h',
                    '../src/Glass/Properties/PropertyList.h',
+                   '../src/Glass/Properties/PropertyList_tests.cpp',
                    '../src/Glass/Properties/Types.h']}

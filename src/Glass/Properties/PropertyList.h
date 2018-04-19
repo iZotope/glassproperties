@@ -19,11 +19,24 @@
 
 namespace Glass {
 
-	struct NullPropertyList {};
-
 	template <typename... Ts> struct PropertyList {};
 
-	template <typename T> struct PropertyListBuilder {};
+	namespace internal {
+
+		template <typename T> constexpr bool is_type_in_list(PropertyList<>) { return false; }
+
+		template <typename T, typename LT, typename... LTs>
+		constexpr bool is_type_in_list(PropertyList<LT, LTs...>) {
+			if (std::is_same<T, LT>::value) {
+				return true;
+			}
+			return is_type_in_list<T>(PropertyList<LTs...>{});
+		}
+	}
+
+	template <typename L, typename T> struct PropertyListHasType {
+		static const bool value = internal::is_type_in_list<T>(L{});
+	};
 
 	using PropertyDefinitionList = vector<unique_ptr<internal::PropertyDefinition>>;
 

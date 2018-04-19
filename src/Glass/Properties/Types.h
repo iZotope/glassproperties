@@ -22,9 +22,14 @@ namespace Glass {
 	template <typename T> struct PropertyType { using type = T; };
 
 	struct IntPropertyType : PropertyType<int32_t> {
-		static constexpr const char* const name = "Int";
+		static constexpr auto name = "Int";
 	};
+
 	struct FloatPropertyType : PropertyType<float> {
-		static constexpr const char* const name = "Float";
+		static constexpr auto name = "Float";
+	};
+
+	struct BoolPropertyType : PropertyType<bool> {
+		static constexpr auto name = "Bool";
 	};
 }

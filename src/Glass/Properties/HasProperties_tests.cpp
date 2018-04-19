@@ -15,8 +15,9 @@
 
 #include "iZBase/common/common.h"
 
-#include "Glass/Properties/HasPropertiesBase.h"
+#include "Glass/Color.h"
 #include "Glass/Properties/HasProperties.h"
+#include "Glass/Properties/HasPropertiesBase.h"
 #include "Glass/Properties/Types.h"
 
 IZ_PUSH_ALL_WARNINGS
@@ -26,18 +27,32 @@ IZ_POP_ALL_WARNINGS
 namespace {
 	const int32_t EXPECTED_INT = 65;
 	constexpr float EXPECTED_FLOAT = 42.f;
+	constexpr Glass::Color EXPECTED_COLOR{1.f, .8f, .2f};
 }
 
 class HasPropertiesTests : public ::testing::Test {
 public:
-	struct TestClass : public Glass::HasPropertiesBase, public Glass::HasProperties<TestClass> {
+	//	template <typename T>
+	//	struct BackgroundColorMixin : public Glass::HasProperties<BackgroundColorMixin<T>, T> {
+	//		struct BackgroundColor : Glass::PropertyDefinition<BackgroundColor,
+	//Glass::ColorPropertyType> { 			static constexpr const char* const name = "Background
+	//Color"; 			static constexpr Glass::ColorPropertyType::type defaultValue =
+	//EXPECTED_COLOR;
+	//		};
+	//	};
+	struct TestClass
+	    : public Glass::HasPropertiesBase,
+	      public Glass::HasProperties<
+	          HasPropertiesTests::TestClass,
+	          HasPropertiesTests::TestClass> /*, public BackgroundColorMixin<TestClass>*/ {
+
 		struct IntValue
 		    : Glass::PropertyDefinition<IntValue, Glass::IntPropertyType, TestClass> {
 			static constexpr const char* const name = "IntValue";
 			static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
-			static void didSet(TestClass* this_) {
-				this_->latestIntValue = this_->GetProperty<IntValue>();
-			}
+			//			static void didSet(TestClass* this_) {
+			//				this_->latestIntValue = this_->GetProperty<IntValue>();
+			//			}
 		};
 		struct FloatValue : Glass::PropertyDefinition<FloatValue, Glass::FloatPropertyType> {
 			static constexpr const char* const name = "FloatValue";
@@ -46,6 +61,7 @@ public:
 		using Properties = Glass::PropertyList<IntValue, FloatValue>;
 
 		Glass::optional<int32_t> latestIntValue;
+		Glass::optional<Glass::Color> latestBackgroundColorValue;
 	};
 
 	TestClass p;
@@ -63,11 +79,12 @@ TEST_F(HasPropertiesTests, SetGet) {
 	EXPECT_EQ(5.0f, p.GetProperty<TestClass::FloatValue>());
 }
 
-TEST_F(HasPropertiesTests, DidSet) {
-	p.SetProperty<TestClass::IntValue>(-5);
-	ASSERT_TRUE(static_cast<bool>(p.latestIntValue));
-	EXPECT_EQ(-5, *p.latestIntValue);
-}
+
+// TEST_F(HasPropertiesTests, DidSet) {
+//	p.SetProperty<TestClass::IntValue>(-5);
+//	ASSERT_TRUE(static_cast<bool>(p.latestIntValue));
+//	EXPECT_EQ(-5, *p.latestIntValue);
+//}
 
 TEST_F(HasPropertiesTests, SerializedValue) {
 	const int serializedInt = 9;
@@ -101,3 +118,7 @@ TEST_F(HasPropertiesTests, SetSerializedValueDoesNotOverrideLiveValue) {
 	EXPECT_EQ(serializedFloat2,
 	          p.GetSerializedValue<TestClass::FloatValue>());
 }
+
+// TEST_F(HasPropertiesTests, Mixin) {
+//	ASSERT_EQ(EXPECTED_COLOR, p.GetProperty<TestClass::BackgroundColor>());
+//}

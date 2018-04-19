@@ -19,7 +19,7 @@
 
 namespace Glass {
 	class HasPropertiesBase {
-		template <typename T> friend class HasProperties;
+		template <typename T, typename U, typename Ps> friend class HasProperties;
 
 	public:
 		virtual ~HasPropertiesBase();
