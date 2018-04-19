@@ -50,7 +50,7 @@ namespace {
 	    : Glass::PropertyDefinition<IntValueT<T...>, Glass::IntPropertyType, TestClassT<T...>> {
 		static constexpr const char* const name = "IntValue";
 		static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
-		template <typename U> static void didSet(U* this_) {
+		static void didSet(TestClassT<T...>* this_) {
 			this_->latestIntValue = this_->template GetProperty<IntValueT<T...>>();
 		}
 	};
