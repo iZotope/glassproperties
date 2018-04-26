@@ -42,18 +42,27 @@ namespace Glass {
 			    .cast();
 		}
 
-		template <typename P> void SetProperty(typename P::property_type::type value) {
+		template <typename P>
+		void
+		SetProperty(typename std::enable_if<PropertyListHasType<Ps, typename P::impl_type>::value,
+		                                    typename P::property_type::type>::type value) {
 			getPropertyHolder().template SetProperty<typename P::property_type::type>(P::name,
 			                                                                          value);
 		}
 
-		template <typename P> typename P::property_type::type GetSerializedValue() const {
+		template <typename P>
+		typename std::enable_if<PropertyListHasType<Ps, typename P::impl_type>::value,
+		                        typename P::property_type::type>::type
+		GetSerializedValue() const {
 			return getPropertyHolder()
 			    .template GetSerializedValue<typename P::property_type::type>(P::name)
 			    .cast();
 		}
 
-		template <typename P> void SetSerializedValue(typename P::property_type::type value) {
+		template <typename P>
+		void SetSerializedValue(
+		    typename std::enable_if<PropertyListHasType<Ps, typename P::impl_type>::value,
+		                            typename P::property_type::type>::type value) {
 			getPropertyHolder().template SetSerializedValue<typename P::property_type::type>(
 			    P::name, value);
 		}
