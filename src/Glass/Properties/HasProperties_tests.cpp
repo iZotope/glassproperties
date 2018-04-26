@@ -86,11 +86,11 @@ TEST_F(HasPropertiesTests, SetGet) {
 }
 
 
-// TEST_F(HasPropertiesTests, DidSet) {
-//	p.SetProperty<TestClass::IntValue>(-5);
-//	ASSERT_TRUE(static_cast<bool>(p.latestIntValue));
-//	EXPECT_EQ(-5, *p.latestIntValue);
-//}
+ TEST_F(HasPropertiesTests, DidSet) {
+	p.SetProperty<IntValue>(-5);
+	ASSERT_TRUE(static_cast<bool>(p.latestIntValue));
+	EXPECT_EQ(-5, *p.latestIntValue);
+}
 
 TEST_F(HasPropertiesTests, SerializedValue) {
 	const int serializedInt = 9;
