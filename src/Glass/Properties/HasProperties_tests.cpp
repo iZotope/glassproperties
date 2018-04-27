@@ -27,24 +27,27 @@ IZ_POP_ALL_WARNINGS
 namespace {
 	const int32_t EXPECTED_INT = 65;
 	constexpr float EXPECTED_FLOAT = 42.f;
-	//	constexpr Glass::Color EXPECTED_COLOR{1.f, .8f, .2f};
+	constexpr Glass::Color EXPECTED_COLOR{1.f, .8f, .2f};
 }
 
 namespace {
 	struct TestClass;
 
-	//    template <typename T>
-	//    struct BackgroundColorMixin : public
-	//    Glass::HasProperties<BackgroundColorMixin<T>, T> {
-	//        struct BackgroundColor :
-	//        Glass::PropertyDefinition<BackgroundColor,
-	// Glass::ColorPropertyType> {             static constexpr const char*
-	// const name = "Background
-	// Color";             static constexpr Glass::ColorPropertyType::type
-	// defaultValue =
-	// EXPECTED_COLOR;
-	//        };
-	//    };
+	struct BackgroundColor : Glass::PropertyDefinition<BackgroundColor, Glass::ColorPropertyType> {
+		static constexpr const char* const name = "Background Color";
+		static constexpr Glass::ColorPropertyType::type defaultValue = EXPECTED_COLOR;
+	};
+	struct IntValue2 : Glass::PropertyDefinition<IntValue2, Glass::IntPropertyType> {
+		static constexpr const char* const name = "IntValue2";
+		static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
+	};
+
+	using BGProperties = Glass::PropertyList<BackgroundColor, IntValue2>;
+
+	template <typename T>
+	struct BackgroundColorMixin : public Glass::HasProperties<BGProperties, T> {
+
+	    };
 	struct IntValue : Glass::PropertyDefinition<IntValue, Glass::IntPropertyType, TestClass> {
 		static constexpr const char* const name = "IntValue";
 		static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
@@ -60,8 +63,19 @@ namespace {
 
 	struct TestClass
 	    : public Glass::HasPropertiesBase,
-	      public Glass::HasProperties<Properties,
-	                                  TestClass> /*, public BackgroundColorMixin<TestClass>*/ {
+	      public Glass::HasProperties<Properties,TestClass> , public BackgroundColorMixin<TestClass>
+	{
+
+		using Glass::HasProperties<Properties,TestClass>::GetProperty;
+		using BackgroundColorMixin<TestClass>::GetProperty;
+		using Glass::HasProperties<Properties,TestClass>::SetProperty;
+		using BackgroundColorMixin<TestClass>::SetProperty;
+		using Glass::HasProperties<Properties,TestClass>::GetSerializedValue;
+		using BackgroundColorMixin<TestClass>::GetSerializedValue;
+		using Glass::HasProperties<Properties,TestClass>::SetSerializedValue;
+		using BackgroundColorMixin<TestClass>::SetSerializedValue;
+
+		
 
 		Glass::optional<int32_t> latestIntValue;
 		Glass::optional<Glass::Color> latestBackgroundColorValue;
@@ -122,6 +136,11 @@ TEST_F(HasPropertiesTests, SetSerializedValueDoesNotOverrideLiveValue) {
 	EXPECT_EQ(serializedFloat2, p.GetSerializedValue<FloatValue>());
 }
 
-// TEST_F(HasPropertiesTests, Mixin) {
-//	ASSERT_EQ(EXPECTED_COLOR, p.GetProperty<TestClass::BackgroundColor>());
-//}
+TEST_F(HasPropertiesTests, Mixin) {
+	ASSERT_EQ(EXPECTED_INT, p.GetProperty<IntValue2>());
+	ASSERT_EQ(EXPECTED_COLOR, p.GetProperty<BackgroundColor>());
+	p.SetProperty<IntValue2>(-2);
+	ASSERT_EQ(EXPECTED_INT, p.GetProperty<IntValue>());
+	ASSERT_EQ(-2, p.GetProperty<IntValue2>());
+}
+

@@ -29,9 +29,9 @@ namespace Glass {
 	//!
 	//! HasProperties<T> expects that there is a PropertyList T::Properties
 	template <typename Ps, typename U> class HasProperties {
-	public:
 		static_assert(IsPropertyList<Ps>::value, "Ps must be a PropertyList");
-		using Properties = Ps;
+	public:
+
 
 		template <typename P>
 		typename std::enable_if<PropertyListHasType<Ps, typename P::impl_type>::value,
