@@ -60,15 +60,15 @@ namespace Glass {
 		template <typename W, typename R = typename std::enable_if<!std::is_void<W>::value,
 		                                      std::optional<std::function<void()>>>::type>
 		R getDidSetFn(boost::any this_, int = 0) const {
-			V* vThis;
-			try {
-				vThis = boost::any_cast<V*>(this_);
-				std::function<void()> fn = [vThis]() { T::didSet(vThis); };
-				return fn;
-			} catch (boost::bad_any_cast&) {
+			V** vThis{nullptr};
+			if (!vThis) {
 				ZERROR("Failed to cast this to correct type to generate didSet callback.");
 				return std::nullopt;
 			}
+			vThis = boost::any_cast<V**>(this_);
+			std::function<void()> fn = [vThis]() { T::didSet(*vThis); };
+
+			return fn;
 		}
 	};
 }
