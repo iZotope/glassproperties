@@ -18,11 +18,18 @@
 #include "iZBase/Util/PropertyHolder.h"
 
 namespace Glass {
+	//! Base class for classes that have properties.
+	//!
+	//! Through multiple inheritance it is possible to inherit from two different
+	//! HasProperties<Ps,U>, so the actual property holder is a member of HasPropertiesBase. Any
+	//! derived type that inherits from some HasProperties<Ps,U> must also inherit from
+	//! HasPropertiesBase and must provide the type deriving from HasPropertiesBase as type argument
+	//! U.
 	class HasPropertiesBase {
-		template <typename T, typename U> friend class HasProperties;
+		template <typename Ps, typename U> friend class HasProperties;
 
 	public:
-		virtual ~HasPropertiesBase();
+		virtual ~HasPropertiesBase() = 0;
 
 	protected:
 		HasPropertiesBase();

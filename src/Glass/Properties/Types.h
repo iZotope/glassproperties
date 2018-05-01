@@ -18,7 +18,7 @@
 namespace Glass {
 	//! Use PropertyType to define a named property for serialization
 	//!
-	//! typename T: type backing the property
+	//! \param T type backing the property
 	template <typename T> struct PropertyType { using type = T; };
 
 	struct IntPropertyType : PropertyType<int32_t> {

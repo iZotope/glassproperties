@@ -26,7 +26,7 @@ namespace Glass {
 		};
 	}
 
-	//! Subclass to define a property
+	//! Subclass this template to define a property
 	//!
 	//! Must conform to the following concept:
 	//!   std::string name
@@ -34,9 +34,9 @@ namespace Glass {
 	//!   static void didSet(V*) (std::optional, implement and specify V type argument to provide a
 	//!   callback)
 	//!
-	//! typename T: The type inheriting from PropertyDefinition
-	//! typename U: The PropertyType to use for this property
-	//! typename V: The type that has this property, only necessary if providing a didSet(V*) static
+	//! \param T The type inheriting from PropertyDefinition
+	//! \param U The PropertyType to use for this property
+	//! \param V The type that has this property, only necessary if providing a didSet(V*) static
 	//! function
 	template <typename T, typename U, typename V = void>
 	struct PropertyDefinition : internal::PropertyDefinition {

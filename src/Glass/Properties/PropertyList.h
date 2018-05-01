@@ -19,10 +19,12 @@
 
 namespace Glass {
 
+	//! Type to describe a list of property definitions
+	//!
+	//! \param Ts List of PropertyDefinition
 	template <typename... Ts> struct PropertyList {};
 
 	namespace internal {
-
 		template <typename T> constexpr bool is_type_in_list(PropertyList<>) { return false; }
 
 		template <typename T, typename LT, typename... LTs>
@@ -34,10 +36,22 @@ namespace Glass {
 		}
 	}
 
+	//! Used to determine if a PropertyDefinition is a member of a PropertyList
+	//!
+	//! \param L PropertyList to verify definition membership
+	//! \param T PropertyDefinition to be verified
 	template <typename L, typename T> struct PropertyListHasType {
+		//! true if PropertyDefinition L is in PropertyList T
 		static const bool value = internal::is_type_in_list<T>(L{});
 	};
 
+	template <typename T> struct IsPropertyList { static constexpr bool value = false; };
+
+	template <typename... Ts> struct IsPropertyList<PropertyList<Ts...>> {
+		static constexpr bool value = true;
+	};
+
+	//! A vector of instantiated PropertyDefinition
 	using PropertyDefinitionList = vector<unique_ptr<internal::PropertyDefinition>>;
 
 	inline PropertyDefinitionList CreatePropertyDefinitionListForPropertyList(PropertyList<>) {
@@ -55,9 +69,5 @@ namespace Glass {
 		return propertyDefinitionList;
 	}
 
-	template <typename T> struct IsPropertyList { static constexpr bool value = false; };
 
-	template <typename... Ts> struct IsPropertyList<PropertyList<Ts...>> {
-		static constexpr bool value = true;
-	};
 }

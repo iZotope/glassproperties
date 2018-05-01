@@ -21,10 +21,8 @@
 namespace Glass {
 	//! Mixin for object that implement glass properties
 	//!
-	//! typename T: type inheriting from HasProperties, must be a subclass of
-	//! HasPropertiesBase
-	//!
-	//! HasProperties<T> expects that there is a PropertyList T::Properties
+	//! \param Ps PropertyList type representing the list of properties held by this class
+	//! \param U Type inheriting from HasProperties<Ps,U>; must be a subclass of HasPropertiesBase
 	template <typename Ps, typename U> class HasProperties {
 		static_assert(IsPropertyList<Ps>::value, "Ps must be a PropertyList");
 
