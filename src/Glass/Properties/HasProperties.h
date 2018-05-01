@@ -19,9 +19,6 @@
 #include "Glass/Properties/PropertyList.h"
 
 namespace Glass {
-
-	namespace internal {}
-
 	//! Mixin for object that implement glass properties
 	//!
 	//! typename T: type inheriting from HasProperties, must be a subclass of
@@ -30,45 +27,47 @@ namespace Glass {
 	//! HasProperties<T> expects that there is a PropertyList T::Properties
 	template <typename Ps, typename U> class HasProperties {
 		static_assert(IsPropertyList<Ps>::value, "Ps must be a PropertyList");
+
 	public:
-
-
-		template <typename P>
-		typename std::enable_if<PropertyListHasType<Ps, typename P::impl_type>::value,
-		                        typename P::property_type::type>::type
-		GetProperty() const {
+		template <typename P, typename = typename std::enable_if<
+		                          PropertyListHasType<Ps, typename P::impl_type>::value,
+		                          typename P::property_type::type>::type>
+		typename P::property_type::type GetProperty() const {
 			return getPropertyHolder()
 			    .template GetProperty<typename P::property_type::type>(P::name)
 			    .cast();
 		}
 
-		template <typename P>
-		void
-		SetProperty(typename std::enable_if<PropertyListHasType<Ps, typename P::impl_type>::value,
-		                                    typename P::property_type::type>::type value) {
+		template <typename P, typename = typename std::enable_if<
+		                          PropertyListHasType<Ps, typename P::impl_type>::value,
+		                          typename P::property_type::type>::type>
+		void SetProperty(typename P::property_type::type value) {
 			getPropertyHolder().template SetProperty<typename P::property_type::type>(P::name,
 			                                                                          value);
 		}
 
-		template <typename P>
-		typename std::enable_if<PropertyListHasType<Ps, typename P::impl_type>::value,
-		                        typename P::property_type::type>::type
-		GetSerializedValue() const {
+		template <typename P, typename = typename std::enable_if<
+		                          PropertyListHasType<Ps, typename P::impl_type>::value,
+		                          typename P::property_type::type>::type>
+		typename P::property_type::type GetSerializedValue() const {
 			return getPropertyHolder()
 			    .template GetSerializedValue<typename P::property_type::type>(P::name)
 			    .cast();
 		}
 
-		template <typename P>
-		void SetSerializedValue(
-		    typename std::enable_if<PropertyListHasType<Ps, typename P::impl_type>::value,
-		                            typename P::property_type::type>::type value) {
+		template <typename P, typename = typename std::enable_if<
+		                          PropertyListHasType<Ps, typename P::impl_type>::value,
+		                          typename P::property_type::type>::type>
+		void SetSerializedValue(typename P::property_type::type value) {
 			getPropertyHolder().template SetSerializedValue<typename P::property_type::type>(
 			    P::name, value);
 		}
 
 	protected:
 		HasProperties() {
+			static_assert(std::is_base_of<HasPropertiesBase, U>::value,
+			              "U must derive from HasPropertiesBase");
+
 			for (auto& p : CreatePropertyDefinitionListForPropertyList(Ps{})) {
 				auto property = getPropertyHolder().CreateProperty(p->GetName(), p->GetTypeName(),
 				                                                   p->GetDefaultValue());
