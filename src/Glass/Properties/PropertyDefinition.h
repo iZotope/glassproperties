@@ -61,11 +61,11 @@ namespace Glass {
 		                                      std::optional<std::function<void()>>>::type>
 		R getDidSetFn(boost::any this_, int = 0) const {
 			V** vThis{nullptr};
+            vThis = boost::any_cast<V**>(this_);
 			if (!vThis) {
 				ZERROR("Failed to cast this to correct type to generate didSet callback.");
 				return std::nullopt;
 			}
-			vThis = boost::any_cast<V**>(this_);
 			std::function<void()> fn = [vThis]() { T::didSet(*vThis); };
 
 			return fn;
