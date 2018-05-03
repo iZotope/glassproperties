@@ -24,6 +24,16 @@ namespace Glass {
 			virtual boost::any GetDefaultValue() const = 0;
 			virtual std::optional<std::function<void()>> GetDidSetFn(boost::any) const = 0;
 		};
+
+		template<typename T>
+		auto getDefaultValue(typename std::enable_if<!std::is_function<decltype(T::defaultValue)>::value, T*>::type) {
+			return T::defaultValue;
+		}
+		
+		template<typename T>
+		auto getDefaultValue(typename std::enable_if<std::is_same<decltype((T::defaultValue(), 4)), decltype(4)>::value, T*>::type) {
+			return T::defaultValue();
+		}
 	}
 
 	//! Subclass this template to define a property
@@ -46,7 +56,7 @@ namespace Glass {
 
 		std::string GetName() const override final { return impl_type::name; }
 		std::string GetTypeName() const override final { return property_type::name; }
-		boost::any GetDefaultValue() const override final { return impl_type::defaultValue; }
+		boost::any GetDefaultValue() const override final { return internal::getDefaultValue<impl_type>(nullptr); }
 		std::optional<std::function<void()>> GetDidSetFn(boost::any this_) const override final {
 			return getDidSetFn<V>(this_);
 		}
