@@ -32,4 +32,8 @@ namespace Glass {
 	struct BoolPropertyType : PropertyType<bool> {
 		static constexpr auto name = "Bool";
 	};
+
+	struct StringPropertyType : PropertyType<std::string> {
+		static constexpr auto name = "String";
+	};
 }
