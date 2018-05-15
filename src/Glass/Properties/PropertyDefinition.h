@@ -50,12 +50,11 @@ namespace Glass {
 	//! function
 	template <typename T, typename U, typename V = void>
 	struct PropertyDefinition : internal::PropertyDefinition {
-	public:
 		using property_type = U;
 		using impl_type = T;
 
 		std::string GetName() const override final { return impl_type::name; }
-		std::string GetTypeName() const override final { return property_type::name; }
+		std::string GetTypeName() const override { return U::name; }
 		boost::any GetDefaultValue() const override final { return internal::getDefaultValue<impl_type>(nullptr); }
 		std::optional<std::function<void()>> GetDidSetFn(boost::any this_) const override final {
 			return getDidSetFn<V>(this_);
@@ -79,6 +78,17 @@ namespace Glass {
 			std::function<void()> fn = [vThis = *pvThis]() { T::didSet(vThis); };
 
 			return fn;
+		}
+	};
+
+	template <typename T, typename U, typename V = void>
+	struct OptionalPropertyDefinition : PropertyDefinition<T, U, V> {
+		struct OptionalPropertyType {
+			using type = std::optional<typename U::type>;
+		};
+		using property_type = OptionalPropertyType;
+		std::string GetTypeName() const override {
+			return "Optional " + PropertyDefinition<T, U, V>::GetTypeName();
 		}
 	};
 }
