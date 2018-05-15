@@ -77,4 +77,9 @@ namespace Glass {
 	struct StringPropertyType : PropertyType<std::string> {
 		static constexpr auto name = "String";
 	};
+
+	template <typename T>
+	struct EnumPropertyType : PropertyType<T> {
+		static constexpr auto name = "Enum";
+	};
 }
