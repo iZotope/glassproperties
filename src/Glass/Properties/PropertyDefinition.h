@@ -54,7 +54,7 @@ namespace Glass {
 		using impl_type = T;
 
 		std::string GetName() const override final { return impl_type::name; }
-		std::string GetTypeName() const override { return U::name; }
+		std::string GetTypeName() const override { return property_type::name; }
 		boost::any GetDefaultValue() const override final { return internal::getDefaultValue<impl_type>(nullptr); }
 		std::optional<std::function<void()>> GetDidSetFn(boost::any this_) const override final {
 			return getDidSetFn<V>(this_);
