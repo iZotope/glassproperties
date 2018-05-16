@@ -40,7 +40,7 @@ namespace Glass {
 	//!
 	//! Must conform to the following concept:
 	//!   std::string name
-	//!   U::type defaultValue
+	//!   U::type defaultValue or U::type defaultValue() { ... }
 	//!   static void didSet(V*) (std::optional, implement and specify V type argument to provide a
 	//!   callback)
 	//!
@@ -81,6 +81,18 @@ namespace Glass {
 		}
 	};
 
+	//! Subclass this template to define an "std::optional" property
+	//!
+	//! Must conform to the following concept:
+	//! 	std::string name
+	//! 	std::optional<U::type> defaultValue or std::optional<U::type> defaultValue() { ... }
+	//! 	static void didSet(V*) (std::optional, implement and specify V type argument to provide a
+	//! 	callback)
+	//!
+	//! \param T the type inheriting from PropertyDefinition
+	//! \param U the PropertyType to use for this property
+	//! \param V the type that has this property, only necessary if providing a didSet(V*) static
+	//! function
 	template <typename T, typename U, typename V = void>
 	struct OptionalPropertyDefinition : PropertyDefinition<T, U, V> {
 		struct OptionalPropertyType {
