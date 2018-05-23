@@ -34,10 +34,8 @@ namespace Glass {
 		                          PropertyListHasType<Ps, typename P::impl_type>::value,
 		                          typename P::property_type::type>::type>
 		typename P::property_type::type GetProperty() const {
-			return getPropertyHolder()
-			    .template GetProperty<typename P::property_type::type>(
-			        Private::getName<P>(nullptr), Private::getDefaultValue<P>(nullptr))
-			    .cast();
+			return getPropertyHolder().template GetProperty<typename P::property_type::type>(
+			    Private::getName<P>(nullptr), Private::getDefaultValue<P>(nullptr));
 		}
 
 		template <typename P, typename = typename std::enable_if<
@@ -52,9 +50,8 @@ namespace Glass {
 		                          PropertyListHasType<Ps, typename P::impl_type>::value,
 		                          typename P::property_type::type>::type>
 		typename P::property_type::type GetSerializedValue() const {
-			return getPropertyHolder()
-			    .template GetSerializedValue<typename P::property_type::type>(Private::getName<P>(nullptr))
-			    .cast();
+			return getPropertyHolder().template GetSerializedValue<typename P::property_type::type>(
+			    Private::getName<P>(nullptr), Private::getDefaultValue<P>(nullptr));
 		}
 
 		template <typename P, typename = typename std::enable_if<
