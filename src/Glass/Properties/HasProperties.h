@@ -35,7 +35,8 @@ namespace Glass {
 		                          typename P::property_type::type>::type>
 		typename P::property_type::type GetProperty() const {
 			return getPropertyHolder()
-			.template GetProperty<typename P::property_type::type>(Private::getName<P>(nullptr))
+			    .template GetProperty<typename P::property_type::type>(
+			        Private::getName<P>(nullptr), Private::getDefaultValue<P>(nullptr))
 			    .cast();
 		}
 
