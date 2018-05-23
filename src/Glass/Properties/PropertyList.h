@@ -52,20 +52,21 @@ namespace Glass {
 	};
 
 	//! A vector of instantiated PropertyDefinition
-	using PropertyDefinitionList = vector<unique_ptr<internal::PropertyDefinition>>;
+	using PropertyDefinitionList = vector<unique_ptr<PropertyDefinitionBase>>;
 
-	inline PropertyDefinitionList CreatePropertyDefinitionListForPropertyList(PropertyList<>) {
+	template <typename V>
+	inline PropertyDefinitionList CreatePropertyDefinitionListForPropertyList(V*, PropertyList<>) {
 		PropertyDefinitionList propertyDefinitionList;
 		propertyDefinitionList.reserve(20u);
 		return propertyDefinitionList;
 	}
 
-	template <typename T, typename... Ts>
+	template <typename V, typename T, typename... Ts>
 	inline PropertyDefinitionList
-	    CreatePropertyDefinitionListForPropertyList(PropertyList<T, Ts...>) {
+	CreatePropertyDefinitionListForPropertyList(V* hasProperties, PropertyList<T, Ts...>) {
 		auto propertyDefinitionList =
-		    CreatePropertyDefinitionListForPropertyList(PropertyList<Ts...>{});
-		propertyDefinitionList.emplace_back(make_unique<T>());
+		    CreatePropertyDefinitionListForPropertyList(hasProperties, PropertyList<Ts...>{});
+		propertyDefinitionList.emplace_back(T::Create(hasProperties));
 		return propertyDefinitionList;
 	}
 

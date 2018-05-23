@@ -31,39 +31,50 @@ namespace {
 }
 
 namespace {
+
 	struct TestClass;
+
+	struct GlobalIntProperty
+	    : Glass::PropertyDefinition<GlobalIntProperty, Glass::IntPropertyType> {
+		static constexpr const char* const name = "IntValue";
+		static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
+	};
 
 	struct BackgroundColor : Glass::PropertyDefinition<BackgroundColor, Glass::ColorPropertyType> {
 		static constexpr const char* const name = "Background Color";
 		static constexpr Glass::ColorPropertyType::type defaultValue = EXPECTED_COLOR;
 	};
+
+
 	struct IntValue2 : Glass::PropertyDefinition<IntValue2, Glass::IntPropertyType> {
 		static constexpr const char* const name = "IntValue2";
 		static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
 	};
 
+
+
+
+
 	using BGProperties = Glass::PropertyList<BackgroundColor, IntValue2>;
 
 	template <typename T>
-	struct BackgroundColorMixin : public Glass::HasProperties<BGProperties, T> {
+	struct BackgroundColorMixin : public Glass::HasProperties<BGProperties, T> {};
 
-	    };
-	struct IntValue : Glass::PropertyDefinition<IntValue, Glass::IntPropertyType, TestClass> {
-		static constexpr const char* const name = "IntValue";
-		static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
-		template <typename T> static void didSet(T* this_) {
-			this_->latestIntValue = this_->template GetProperty<IntValue>();
-		}
-	};
+
+	using IntValue = GlobalIntProperty;
+
+
 	struct FloatValue : Glass::PropertyDefinition<FloatValue, Glass::FloatPropertyType> {
 		static constexpr const char* const name = "FloatValue";
 		static constexpr const Glass::FloatPropertyType::type defaultValue = EXPECTED_FLOAT;
 	};
+
+
 	using Properties = Glass::PropertyList<IntValue, FloatValue>;
 
 	struct TestClass
 	    : public Glass::HasPropertiesBase,
-	      public Glass::HasProperties<Properties,TestClass> , public BackgroundColorMixin<TestClass>
+	      public Glass::HasProperties<Properties,TestClass>, public BackgroundColorMixin<TestClass>
 	{
 
 		using Glass::HasProperties<Properties,TestClass>::GetProperty;
@@ -75,12 +86,20 @@ namespace {
 		using Glass::HasProperties<Properties,TestClass>::SetSerializedValue;
 		using BackgroundColorMixin<TestClass>::SetSerializedValue;
 
-		
+		void didSet(IntValue) {
+			latestIntValue = GetProperty<IntValue>();
+		}
 
 		Glass::optional<int32_t> latestIntValue;
 		Glass::optional<Glass::Color> latestBackgroundColorValue;
 	};
 }
+
+static_assert(!Glass::Meta::HasDidSet_v<TestClass, FloatValue>,
+              "TestClass has a didSet function for FloatValue");
+static_assert(Glass::Meta::HasDidSet_v<TestClass, IntValue>,
+              "TestClass does not have a didSet function for IntValue");
+static_assert(std::is_assignable<Glass::PropertyDefinitionBase, IntValue>::value, "Can't assign IntValue to Glass::PropertyDefinitionBase");
 
 class HasPropertiesTests : public ::testing::Test {
 public:
@@ -143,4 +162,3 @@ TEST_F(HasPropertiesTests, Mixin) {
 	ASSERT_EQ(EXPECTED_INT, p.GetProperty<IntValue>());
 	ASSERT_EQ(-2, p.GetProperty<IntValue2>());
 }
-

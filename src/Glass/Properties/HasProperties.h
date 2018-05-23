@@ -66,10 +66,11 @@ namespace Glass {
 			static_assert(std::is_base_of<HasPropertiesBase, U>::value,
 			              "U must derive from HasPropertiesBase");
 
-			for (auto& p : CreatePropertyDefinitionListForPropertyList(Ps{})) {
+			for (auto& p :
+			     CreatePropertyDefinitionListForPropertyList(static_cast<U*>(this), Ps{})) {
 				auto property = getPropertyHolder().CreateProperty(p->GetName(), p->GetTypeName(),
 				                                                   p->GetDefaultValue());
-				auto didSet = p->GetDidSetFn(static_cast<U*>(this));
+				auto didSet = p->GetDidSetFn();
 				if (didSet) {
 					property.GetSignal()->Connect(&getTrackable(), *didSet);
 				}
