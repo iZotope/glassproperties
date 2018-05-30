@@ -45,16 +45,6 @@ namespace Glass {
 
 		virtual ~PropertyDefinitionBase() = 0;
 	};
-		
-		template<typename T>
-		auto getName(typename std::enable_if<!std::is_function<decltype(T::name)>::value, T*>::type) {
-			return T::name;
-		}
-		
-		template<typename T>
-		auto getName(typename std::enable_if<std::is_function<decltype(T::name)>::value, T*>::type) {
-			return T::name();
-		}
 }
 
 #include "Glass/Properties/Private/DidSetFactory.h"

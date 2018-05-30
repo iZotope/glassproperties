@@ -17,6 +17,7 @@
 
 #include "Glass/Properties/HasPropertiesBase.h"
 #include "Glass/Properties/PropertyDefinition.h"
+#include "Glass/Properties/Private/getName.h"
 #include "Glass/Properties/PropertyList.h"
 
 
@@ -34,7 +35,7 @@ namespace Glass {
 		                          typename P::property_type::type>::type>
 		typename P::property_type::type GetProperty() const {
 			return getPropertyHolder()
-			.template GetProperty<typename P::property_type::type>(internal::getName<P>(nullptr))
+			.template GetProperty<typename P::property_type::type>(Private::getName<P>(nullptr))
 			    .cast();
 		}
 
@@ -42,7 +43,7 @@ namespace Glass {
 		                          PropertyListHasType<Ps, typename P::impl_type>::value,
 		                          typename P::property_type::type>::type>
 		void SetProperty(typename P::property_type::type value) {
-			getPropertyHolder().template SetProperty<typename P::property_type::type>(internal::getName<P>(nullptr),
+			getPropertyHolder().template SetProperty<typename P::property_type::type>(Private::getName<P>(nullptr),
 			                                                                          value);
 		}
 
@@ -51,7 +52,7 @@ namespace Glass {
 		                          typename P::property_type::type>::type>
 		typename P::property_type::type GetSerializedValue() const {
 			return getPropertyHolder()
-			    .template GetSerializedValue<typename P::property_type::type>(internal::getName<P>(nullptr))
+			    .template GetSerializedValue<typename P::property_type::type>(Private::getName<P>(nullptr))
 			    .cast();
 		}
 
@@ -60,7 +61,7 @@ namespace Glass {
 		                          typename P::property_type::type>::type>
 		void SetSerializedValue(typename P::property_type::type value) {
 			getPropertyHolder().template SetSerializedValue<typename P::property_type::type>(
-			    internal::getName<P>(nullptr), value);
+			    Private::getName<P>(nullptr), value);
 		}
 
 	protected:
