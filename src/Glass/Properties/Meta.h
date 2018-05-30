@@ -56,5 +56,6 @@ namespace Glass {
 		};
 
 		template <typename D> constexpr bool IsDisplayProperty_v = IsDisplayProperty<D>::value;
+
 	}
 }
