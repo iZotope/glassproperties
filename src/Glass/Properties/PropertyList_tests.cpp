@@ -40,10 +40,10 @@ namespace detail {
 	struct TestClass : public HasPropertiesBase, public HasProperties<Properties, TestClass> {};
 }
 
-using detail::ThingOne;
-using detail::ThingTwo;
 using detail::Cat;
 using detail::TestClass;
+using detail::ThingOne;
+using detail::ThingTwo;
 
 static_assert(PropertyListHasType<typename detail::Properties, ThingOne>::value,
               "PropertyListHasType<Properties, ThingOne>::value == false, "

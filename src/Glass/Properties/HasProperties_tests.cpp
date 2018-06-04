@@ -52,9 +52,6 @@ namespace {
 	};
 
 
-
-
-
 	using BGProperties = Glass::PropertyList<BackgroundColor, IntValue2>;
 
 	template <typename T>
@@ -72,23 +69,20 @@ namespace {
 
 	using Properties = Glass::PropertyList<IntValue, FloatValue>;
 
-	struct TestClass
-	    : public Glass::HasPropertiesBase,
-	      public Glass::HasProperties<Properties,TestClass>, public BackgroundColorMixin<TestClass>
-	{
+	struct TestClass : public Glass::HasPropertiesBase,
+	                   public Glass::HasProperties<Properties, TestClass>,
+	                   public BackgroundColorMixin<TestClass> {
 
-		using Glass::HasProperties<Properties,TestClass>::GetProperty;
+		using Glass::HasProperties<Properties, TestClass>::GetProperty;
 		using BackgroundColorMixin<TestClass>::GetProperty;
-		using Glass::HasProperties<Properties,TestClass>::SetProperty;
+		using Glass::HasProperties<Properties, TestClass>::SetProperty;
 		using BackgroundColorMixin<TestClass>::SetProperty;
-		using Glass::HasProperties<Properties,TestClass>::GetSerializedValue;
+		using Glass::HasProperties<Properties, TestClass>::GetSerializedValue;
 		using BackgroundColorMixin<TestClass>::GetSerializedValue;
-		using Glass::HasProperties<Properties,TestClass>::SetSerializedValue;
+		using Glass::HasProperties<Properties, TestClass>::SetSerializedValue;
 		using BackgroundColorMixin<TestClass>::SetSerializedValue;
 
-		void didSet(IntValue) {
-			latestIntValue = GetProperty<IntValue>();
-		}
+		void didSet(IntValue) { latestIntValue = GetProperty<IntValue>(); }
 
 		Glass::optional<int32_t> latestIntValue;
 		Glass::optional<Glass::Color> latestBackgroundColorValue;
@@ -99,7 +93,8 @@ static_assert(!Glass::Meta::HasDidSet_v<TestClass, FloatValue>,
               "TestClass has a didSet function for FloatValue");
 static_assert(Glass::Meta::HasDidSet_v<TestClass, IntValue>,
               "TestClass does not have a didSet function for IntValue");
-static_assert(std::is_assignable<Glass::PropertyDefinitionBase, IntValue>::value, "Can't assign IntValue to Glass::PropertyDefinitionBase");
+static_assert(std::is_assignable<Glass::PropertyDefinitionBase, IntValue>::value,
+              "Can't assign IntValue to Glass::PropertyDefinitionBase");
 
 class HasPropertiesTests : public ::testing::Test {
 public:
@@ -119,7 +114,7 @@ TEST_F(HasPropertiesTests, SetGet) {
 }
 
 
- TEST_F(HasPropertiesTests, DidSet) {
+TEST_F(HasPropertiesTests, DidSet) {
 	p.SetProperty<IntValue>(-5);
 	ASSERT_TRUE(static_cast<bool>(p.latestIntValue));
 	EXPECT_EQ(-5, *p.latestIntValue);

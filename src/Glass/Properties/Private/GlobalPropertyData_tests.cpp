@@ -41,7 +41,8 @@ TEST(GlobalPropertyTypeRegistration, EnumPropertyNameRegistration) {
 	Util::PropertySerializer serializer{};
 
 	Glass::Private::GlobalPropertyData::registerPropertyType(
-	    serializer, TestEnumType::name,
+	    serializer,
+	    TestEnumType::name,
 	    Glass::Private::GlobalPropertyData::PropertyTypeData<TestEnumType>{});
 
 	ASSERT_TRUE(serializer.IsTypeRegistered(TestEnumType::name));

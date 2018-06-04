@@ -33,12 +33,13 @@ void Glass::Private::GlobalPropertyData::registerGlobalPropertyTypes(
 }
 
 void Glass::Private::GlobalPropertyData::registerPropertyType(
-    Util::PropertySerializer& serializer, const std::string& typeName,
+    Util::PropertySerializer& serializer,
+    const std::string& typeName,
     const Glass::Private::GlobalPropertyData::PropertyTypeDataBase& typeData) {
 	const auto names = typeData.GetNames();
 	if (names) {
-		serializer.RegisterType(typeName, typeData.GetSerializeFn(), typeData.GetDeserializeFn(),
-		                        *names);
+		serializer.RegisterType(
+		    typeName, typeData.GetSerializeFn(), typeData.GetDeserializeFn(), *names);
 	} else {
 		serializer.RegisterType(typeName, typeData.GetSerializeFn(), typeData.GetDeserializeFn());
 	}
