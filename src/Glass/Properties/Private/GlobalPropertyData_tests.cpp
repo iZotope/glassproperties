@@ -42,8 +42,7 @@ TEST(GlobalPropertyTypeRegistration, EnumPropertyNameRegistration) {
 
 	Glass::Private::GlobalPropertyData::registerPropertyType(
 	    serializer,
-	    TestEnumType::name,
-	    Glass::Private::GlobalPropertyData::PropertyTypeData<TestEnumType>{});
+	    Glass::Private::GlobalPropertyData::GetPropertyTypeSerializationData<TestEnumType>());
 
 	ASSERT_TRUE(serializer.IsTypeRegistered(TestEnumType::name));
 	ASSERT_TRUE(serializer.IsTypeNamedEnum(TestEnumType::name));
@@ -53,4 +52,100 @@ TEST(GlobalPropertyTypeRegistration, EnumPropertyNameRegistration) {
 	for (size_t i = 0; i < names.size(); ++i) {
 		ASSERT_EQ(TestEnum::_names()[i], names[i]);
 	}
+}
+
+struct TestScratchPropertyType : Glass::PropertyType<int32_t> {
+	static constexpr auto name = "TestScratch";
+	using scratch_type = std::string;
+	static Glass::optional<std::string> serialize(int32_t, const std::string* scratch) {
+		return scratch ? Glass::optional<std::string>{*scratch} : Glass::nullopt;
+	}
+	static Glass::ScratchSpaceAndValue<scratch_type, type> deserialize(const std::string&) {
+		return Glass::ScratchSpaceAndValue<scratch_type, type>{std::string{"hello"}, 7};
+	}
+};
+
+TEST(GlobalPropertyTypeRegistration, SupportsScratchSpace) {
+	auto data = Glass::Private::GlobalPropertyData::GetPropertyTypeSerializationData<
+	    TestScratchPropertyType>();
+	auto deserialized = data.deserialize("test", boost::any{});
+	ASSERT_TRUE(deserialized != Glass::nullopt);
+	auto reserialized = data.serialize(deserialized->value, deserialized->scratchSpace);
+	ASSERT_TRUE(reserialized != Glass::nullopt);
+	ASSERT_EQ(std::string{"hello"}, *reserialized);
+}
+
+struct TestContextPropertyType : Glass::PropertyType<int32_t> {
+	static constexpr auto name = "TestContext";
+	using context_type = std::string;
+	static Glass::optional<std::string> serialize(int32_t) { return Glass::nullopt; }
+	static Glass::optional<int32_t> deserialize(const std::string&, const std::string* context) {
+		if (!context) {
+			return Glass::nullopt;
+		}
+		if (*context != "Cool Context") {
+			return 17;
+		}
+		return 43;
+	}
+};
+
+TEST(GlobalPropertyTypeRegistration, SupportsContext) {
+	auto data = Glass::Private::GlobalPropertyData::GetPropertyTypeSerializationData<
+	    TestContextPropertyType>();
+
+	auto deserializedBad = data.deserialize("test", 4001);
+	//! We expect giving the wrong context gives no result (see above)
+	ASSERT_TRUE(deserializedBad == Glass::nullopt);
+
+	//! giving a context that isn't "Cool Context" should return 17 (See above).
+	auto deserializedNotCool = data.deserialize("test", std::string{"uncool context"});
+	ASSERT_TRUE(deserializedNotCool != Glass::nullopt);
+	ASSERT_TRUE(boost::any_cast<int32_t>(&deserializedNotCool->value) != nullptr);
+	ASSERT_EQ(17, *boost::any_cast<int32_t>(&deserializedNotCool->value));
+
+	//! giving a context that is "Cool Context" should return 43 (See above).
+	auto deserializedCool = data.deserialize("test", std::string{"Cool Context"});
+	ASSERT_TRUE(deserializedCool != Glass::nullopt);
+	ASSERT_TRUE(boost::any_cast<int32_t>(&deserializedCool->value) != nullptr);
+	ASSERT_EQ(43, *boost::any_cast<int32_t>(&deserializedCool->value));
+}
+
+struct TestScratchAndContextPropertyType : Glass::PropertyType<int32_t> {
+	static constexpr auto name = "TestScratchAndContext";
+	using scratch_type = std::string;
+	using context_type = std::string;
+	static Glass::optional<std::string> serialize(int32_t, const std::string* scratch) {
+		return scratch ? Glass::optional<std::string>{*scratch} : Glass::nullopt;
+	}
+	static Glass::optional<Glass::ScratchSpaceAndValue<scratch_type, type>>
+	deserialize(const std::string&, const std::string* context) {
+		if (!context) {
+			return Glass::nullopt;
+		}
+		return Glass::ScratchSpaceAndValue<scratch_type, type>{*context, 7};
+	}
+};
+
+TEST(GlobalPropertyTypeRegistration, SupportsScratchSpaceWithContext) {
+	auto data = Glass::Private::GlobalPropertyData::GetPropertyTypeSerializationData<
+	    TestScratchAndContextPropertyType>();
+
+	auto deserializedBad = data.deserialize("test", 4001);
+	//! We expect giving the wrong context gives no result (see above)
+	ASSERT_TRUE(deserializedBad == Glass::nullopt);
+
+	// The test serializer simply copies the context into the scratch space, so test that this
+	// pathway works.
+	auto deserializedNotCool = data.deserialize("test", std::string{"uncool context"});
+	ASSERT_TRUE(deserializedNotCool != Glass::nullopt);
+	auto reserializedNotCool = data.serialize(3008, deserializedNotCool->scratchSpace);
+	ASSERT_TRUE(reserializedNotCool != Glass::nullopt);
+	ASSERT_EQ(std::string{"uncool context"}, *reserializedNotCool);
+
+	auto deserializedCool = data.deserialize("test", std::string{"Cool Context"});
+	ASSERT_TRUE(deserializedCool != Glass::nullopt);
+	auto reserializedCool = data.serialize(2008, deserializedCool->scratchSpace);
+	ASSERT_TRUE(reserializedCool != Glass::nullopt);
+	ASSERT_EQ(std::string{"Cool Context"}, *reserializedCool);
 }

@@ -35,7 +35,7 @@ namespace Glass {
 		                          typename P::property_type::type>::type>
 		typename P::property_type::type GetProperty() const {
 			return getPropertyHolder().template GetProperty<typename P::property_type::type>(
-			    Private::getName<P>(nullptr), Private::getDefaultValue<P>(nullptr));
+			    Private::getName<P>(nullptr), typename P::property_type::type{});
 		}
 
 		template <typename P, typename = typename std::enable_if<
@@ -46,21 +46,6 @@ namespace Glass {
 			                                                                          value);
 		}
 
-		template <typename P, typename = typename std::enable_if<
-		                          PropertyListHasType<Ps, typename P::impl_type>::value,
-		                          typename P::property_type::type>::type>
-		typename P::property_type::type GetSerializedValue() const {
-			return getPropertyHolder().template GetSerializedValue<typename P::property_type::type>(
-			    Private::getName<P>(nullptr), Private::getDefaultValue<P>(nullptr));
-		}
-
-		template <typename P, typename = typename std::enable_if<
-		                          PropertyListHasType<Ps, typename P::impl_type>::value,
-		                          typename P::property_type::type>::type>
-		void SetSerializedValue(typename P::property_type::type value) {
-			getPropertyHolder().template SetSerializedValue<typename P::property_type::type>(
-			    Private::getName<P>(nullptr), value);
-		}
 
 	protected:
 		HasProperties() {
@@ -69,8 +54,12 @@ namespace Glass {
 
 			for (auto& p :
 			     CreatePropertyDefinitionListForPropertyList(static_cast<U*>(this), Ps{})) {
-				auto property = getPropertyHolder().CreateProperty(p->GetName(), p->GetTypeName(),
-				                                                   p->GetDefaultValue());
+				auto defaultValue = p->GetDefaultValue();
+				auto property =
+				    getPropertyHolder().CreateProperty(p->GetName(),
+				                                       p->GetTypeName(),
+				                                       std::move(defaultValue.value),
+				                                       std::move(defaultValue.scratchSpace));
 				auto didSet = p->GetDidSetFn();
 				if (didSet) {
 					property.GetSignal()->Connect(&getTrackable(), *didSet);

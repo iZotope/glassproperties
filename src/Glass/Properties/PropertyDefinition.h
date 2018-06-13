@@ -40,7 +40,11 @@ namespace Glass {
 	public:
 		virtual std::string GetName() const = 0;
 		virtual std::string GetTypeName() const = 0;
-		virtual boost::any GetDefaultValue() const = 0;
+		struct DefaultValue {
+			boost::any scratchSpace;
+			boost::any value;
+		};
+		virtual DefaultValue GetDefaultValue() const = 0;
 		virtual std::optional<DidSetType> GetDidSetFn() const = 0;
 
 		virtual ~PropertyDefinitionBase() = 0;
@@ -83,7 +87,7 @@ namespace Glass {
 
 		std::string GetName() const override final { return Private::getName<impl_type>(); }
 		std::string GetTypeName() const override { return Private::getName<property_type>(); }
-		boost::any GetDefaultValue() const override final {
+		DefaultValue GetDefaultValue() const override final {
 			return Private::getDefaultValue<impl_type>(nullptr);
 		}
 		std::optional<std::function<void()>> GetDidSetFn() const override final {

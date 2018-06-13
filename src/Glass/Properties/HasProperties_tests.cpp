@@ -77,10 +77,6 @@ namespace {
 		using BackgroundColorMixin<TestClass>::GetProperty;
 		using Glass::HasProperties<Properties, TestClass>::SetProperty;
 		using BackgroundColorMixin<TestClass>::SetProperty;
-		using Glass::HasProperties<Properties, TestClass>::GetSerializedValue;
-		using BackgroundColorMixin<TestClass>::GetSerializedValue;
-		using Glass::HasProperties<Properties, TestClass>::SetSerializedValue;
-		using BackgroundColorMixin<TestClass>::SetSerializedValue;
 
 		void didSet(IntValue) { latestIntValue = GetProperty<IntValue>(); }
 
@@ -118,36 +114,6 @@ TEST_F(HasPropertiesTests, DidSet) {
 	p.SetProperty<IntValue>(-5);
 	ASSERT_TRUE(static_cast<bool>(p.latestIntValue));
 	EXPECT_EQ(-5, *p.latestIntValue);
-}
-
-TEST_F(HasPropertiesTests, SerializedValue) {
-	const int serializedInt = 9;
-	const float serializedFloat = -3.141f;
-
-	p.SetSerializedValue<IntValue>(serializedInt);
-	p.SetSerializedValue<FloatValue>(serializedFloat);
-
-	EXPECT_EQ(serializedInt, p.GetProperty<IntValue>());
-	EXPECT_EQ(serializedInt, p.GetSerializedValue<IntValue>());
-	EXPECT_EQ(serializedFloat, p.GetProperty<FloatValue>());
-	EXPECT_EQ(serializedFloat, p.GetSerializedValue<FloatValue>());
-}
-
-TEST_F(HasPropertiesTests, SetSerializedValueDoesNotOverrideLiveValue) {
-	const float serializedFloat1 = -3.141f;
-	const float serializedFloat2 = -2.4f;
-	const float liveFloat = 2.7f;
-
-	p.SetSerializedValue<FloatValue>(serializedFloat1);
-
-	EXPECT_EQ(serializedFloat1, p.GetProperty<FloatValue>());
-	EXPECT_EQ(serializedFloat1, p.GetSerializedValue<FloatValue>());
-
-	p.SetProperty<FloatValue>(liveFloat);
-	p.SetSerializedValue<FloatValue>(serializedFloat2);
-
-	EXPECT_EQ(liveFloat, p.GetProperty<FloatValue>());
-	EXPECT_EQ(serializedFloat2, p.GetSerializedValue<FloatValue>());
 }
 
 TEST_F(HasPropertiesTests, Mixin) {

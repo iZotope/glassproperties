@@ -21,26 +21,39 @@
 Glass::Private::GlobalPropertyData::PropertySerializationMap&
 Glass::Private::GlobalPropertyData::getPropertySerializationMap() {
 	static PropertySerializationMap map{20};
-
 	return map;
 }
 
 void Glass::Private::GlobalPropertyData::registerGlobalPropertyTypes(
     Util::PropertySerializer& serializer) {
 	for (auto& p : getPropertySerializationMap()) {
-		registerPropertyType(serializer, p.first, *p.second.get());
+		registerPropertyType(serializer, (p.second)());
 	}
+}
+
+template <typename T> static boost::optional<T> toBoostOptional(Glass::optional<T> optT) {
+	if (!optT) {
+		return boost::none;
+	}
+	return boost::optional<T>{std::move(*optT)};
 }
 
 void Glass::Private::GlobalPropertyData::registerPropertyType(
     Util::PropertySerializer& serializer,
-    const std::string& typeName,
-    const Glass::Private::GlobalPropertyData::PropertyTypeDataBase& typeData) {
-	const auto names = typeData.GetNames();
-	if (names) {
-		serializer.RegisterType(
-		    typeName, typeData.GetSerializeFn(), typeData.GetDeserializeFn(), *names);
-	} else {
-		serializer.RegisterType(typeName, typeData.GetSerializeFn(), typeData.GetDeserializeFn());
-	}
+    Glass::Private::GlobalPropertyData::PropertyTypeSerializationData typeData) {
+	serializer.RegisterType(
+	    std::move(typeData.typeName),
+	    toBoostOptional(std::move(typeData.requiredContext)),
+	    [serialize = std::move(typeData.serialize)](const auto& value, const auto& scratch)
+	        -> boost::optional<std::string> { return toBoostOptional(serialize(value, scratch)); },
+	    [deserialize = std::move(typeData.deserialize)](
+	        const auto& s, const auto& c) -> boost::optional<Util::PropertyDeserializationResult> {
+		    auto ret = deserialize(s, c);
+		    if (!ret) {
+			    return boost::none;
+		    }
+		    return Util::PropertyDeserializationResult{std::move(ret->scratchSpace),
+		                                               std::move(ret->value)};
+	    },
+	    toBoostOptional(std::move(typeData.enumNames)));
 }
