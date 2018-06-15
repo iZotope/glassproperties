@@ -55,7 +55,7 @@ namespace {
 	using BGProperties = Glass::PropertyList<BackgroundColor, IntValue2>;
 
 	template <typename T>
-	struct BackgroundColorMixin : public Glass::HasProperties<BGProperties, T> {};
+	struct BackgroundColorMixin : public Glass::HasProperties<T, BGProperties> {};
 
 
 	using IntValue = GlobalIntProperty;
@@ -70,12 +70,12 @@ namespace {
 	using Properties = Glass::PropertyList<IntValue, FloatValue>;
 
 	struct TestClass : public Glass::HasPropertiesBase,
-	                   public Glass::HasProperties<Properties, TestClass>,
+	                   public Glass::HasProperties<TestClass, Properties>,
 	                   public BackgroundColorMixin<TestClass> {
 
-		using Glass::HasProperties<Properties, TestClass>::GetProperty;
+		using Glass::HasProperties<TestClass, Properties>::GetProperty;
 		using BackgroundColorMixin<TestClass>::GetProperty;
-		using Glass::HasProperties<Properties, TestClass>::SetProperty;
+		using Glass::HasProperties<TestClass, Properties>::SetProperty;
 		using BackgroundColorMixin<TestClass>::SetProperty;
 
 		void didSet(IntValue) { latestIntValue = GetProperty<IntValue>(); }

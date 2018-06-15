@@ -37,7 +37,7 @@ namespace detail {
 
 	using Properties = PropertyList<ThingOne, ThingTwo>;
 
-	struct TestClass : public HasPropertiesBase, public HasProperties<Properties, TestClass> {};
+	struct TestClass : public HasPropertiesBase, public HasProperties<TestClass, Properties> {};
 }
 
 using detail::Cat;
