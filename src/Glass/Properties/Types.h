@@ -129,6 +129,21 @@ namespace Glass {
 		}
 	};
 
+	template <typename T>
+	struct VectorProperty : PropertyType<vector<T>> {
+		using type = vector<typename T::type>;
+		static std::string name() { return std::string{"Vector<"} + Private::getName<T>() + std::string{">"}; }
+		static std::string serialize(const type& value) {
+            UNREF_PARAM(value);
+			ZFAILASSERT(); // Not implemented yet
+            return std::string();
+		}
+		static type deserialize(const std::string& serializedValue) {
+            UNREF_PARAM(serializedValue);
+			ZFAILASSERT(); // Not implemented yet
+            return std::string();
+		}
+	};
 
 	struct IntPropertyType : PropertyType<int32_t> {
 		static constexpr auto name = "Int";
