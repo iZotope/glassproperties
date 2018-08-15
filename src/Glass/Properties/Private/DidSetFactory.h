@@ -35,6 +35,9 @@ namespace Glass {
 				static_assert(
 				    Meta::HasSetNeedsLayout<W>::value,
 				    "W must implement SetNeedsLayout to have a property D of type LayoutProperty.");
+				if (auto parent = obj->GetParent().lock()) {
+					parent->SetNeedsLayout();
+				}
 				obj->SetNeedsLayout();
 			}
 			template <typename W, typename D,
