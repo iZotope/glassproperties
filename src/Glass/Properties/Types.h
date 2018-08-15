@@ -129,8 +129,7 @@ namespace Glass {
 		}
 	};
 
-	template <typename T>
-	struct VectorProperty : PropertyType<vector<T>> {
+    template <typename T> struct VectorProperty : T {
 		using type = vector<typename T::type>;
 		static std::string name() { return std::string{"Vector<"} + Private::getName<T>() + std::string{">"}; }
 		static std::string serialize(const type& value) {
