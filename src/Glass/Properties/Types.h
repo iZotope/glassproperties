@@ -18,6 +18,8 @@
 #include "Glass/Float4Dim.h"
 #include "Glass/Properties/Private/getName.h"
 
+#include "fmt/format.h"
+
 namespace Glass {
 
 	//! Properties that require scratch space should return the following type from
@@ -157,6 +159,17 @@ namespace Glass {
 	
 	struct Float4DimPropertyType : PropertyType<Float4Dim> {
 		static constexpr auto name = "Float4Dim";
+		static std::string serialize(const type& value) {
+			return boost::apply_visitor(
+			    ::Util::overload<std::string>(
+			        [](float rad) {
+						return fmt::format("{}", rad);
+				    },
+			        [](std::array<float, 4> rad) {
+						return fmt::format("[{}, {}, {}, {}]", rad[0], rad[1], rad[2], rad[3]);
+				    }),
+			    value);
+		}
 	};
 
 	struct BoolPropertyType : PropertyType<bool> {
