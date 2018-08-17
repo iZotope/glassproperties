@@ -25,13 +25,15 @@ namespace Glass {
 		                                std::is_convertible<decltype(T::defaultValue),
 		                                                    typename T::property_type::type>::value,
 		                            T*>::type) {
-			return Glass::PropertyDefinitionBase::DefaultValue{boost::any{}, T::defaultValue};
+			return Glass::PropertyDefinitionBase::DefaultValue{
+			    boost::any{}, static_cast<typename T::property_type::type>(T::defaultValue)};
 		}
 
 		template <typename T>
 		auto getDefaultValue(
 		    typename std::enable_if<std::is_function<decltype(T::defaultValue)>::value, T*>::type) {
-			return Glass::PropertyDefinitionBase::DefaultValue{boost::any{}, T::defaultValue()};
+			return Glass::PropertyDefinitionBase::DefaultValue{
+			    boost::any{}, static_cast<typename T::property_type::type>(T::defaultValue())};
 		}
 
 		//! This overload is for types with complex default values using strings.  This will use the

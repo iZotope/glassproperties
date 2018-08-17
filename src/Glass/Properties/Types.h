@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include "Glass/Float4Dim.h"
 #include "Glass/Properties/Private/getName.h"
 
 namespace Glass {
@@ -152,6 +153,10 @@ namespace Glass {
 
 	struct FloatPropertyType : PropertyType<float> {
 		static constexpr auto name = "Float";
+	};
+	
+	struct Float4DimPropertyType : PropertyType<Float4Dim> {
+		static constexpr auto name = "Float4Dim";
 	};
 
 	struct BoolPropertyType : PropertyType<bool> {
