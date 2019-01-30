@@ -41,19 +41,28 @@ template <typename T> static boost::optional<T> toBoostOptional(Glass::optional<
 void Glass::Private::GlobalPropertyData::registerPropertyType(
     Util::PropertySerializer& serializer,
     Glass::Private::GlobalPropertyData::PropertyTypeSerializationData typeData) {
-	serializer.RegisterType(
-	    std::move(typeData.typeName),
-	    toBoostOptional(std::move(typeData.requiredContext)),
-	    [serialize = std::move(typeData.serialize)](const auto& value, const auto& scratch)
-	        -> boost::optional<std::string> { return toBoostOptional(serialize(value, scratch)); },
-	    [deserialize = std::move(typeData.deserialize)](
-	        const auto& s, const auto& c) -> boost::optional<Util::PropertyDeserializationResult> {
-		    auto ret = deserialize(s, c);
-		    if (!ret) {
-			    return boost::none;
-		    }
-		    return Util::PropertyDeserializationResult{std::move(ret->scratchSpace),
-		                                               std::move(ret->value)};
-	    },
-	    toBoostOptional(std::move(typeData.enumNames)));
+	auto registrationInfo =
+	    Util::PropertySerializer::AdvancedTypeRegistrationInfo()
+	        .SerializationFunction([serialize = std::move(typeData.serialize)](
+	                                   const auto& value,
+	                                   const auto& scratch) -> boost::optional<std::string> {
+		        return toBoostOptional(serialize(value, scratch));
+	        })
+	        .DeserializationFunction(
+	            [deserialize = std::move(typeData.deserialize)](const auto& s, const auto& c)
+	                -> boost::optional<Util::PropertyDeserializationResult> {
+		            auto ret = deserialize(s, c);
+		            if (!ret) {
+			            return boost::none;
+		            }
+		            return Util::PropertyDeserializationResult{std::move(ret->scratchSpace),
+		                                                       std::move(ret->value)};
+	            });
+	registrationInfo.contextType = toBoostOptional(std::move(typeData.requiredContext));
+
+	if (typeData.enumNames) {
+		registrationInfo.SetEnumValueNames(std::move(*typeData.enumNames));
+	}
+
+	serializer.RegisterTypeAdvanced(std::move(typeData.typeName), std::move(registrationInfo));
 }
