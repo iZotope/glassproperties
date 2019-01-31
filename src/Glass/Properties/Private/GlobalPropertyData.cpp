@@ -27,7 +27,7 @@ Glass::Private::GlobalPropertyData::getPropertySerializationMap() {
 void Glass::Private::GlobalPropertyData::registerGlobalPropertyTypes(
     Util::PropertySerializer& serializer) {
 	for (auto& p : getPropertySerializationMap()) {
-		registerPropertyType(serializer, (p.second)());
+		registerPropertyType(serializer, p.first, (p.second)());
 	}
 }
 
@@ -40,29 +40,7 @@ template <typename T> static boost::optional<T> toBoostOptional(Glass::optional<
 
 void Glass::Private::GlobalPropertyData::registerPropertyType(
     Util::PropertySerializer& serializer,
+    std::string name,
     Glass::Private::GlobalPropertyData::PropertyTypeSerializationData typeData) {
-	auto registrationInfo =
-	    Util::PropertySerializer::AdvancedTypeRegistrationInfo()
-	        .SerializationFunction([serialize = std::move(typeData.serialize)](
-	                                   const auto& value,
-	                                   const auto& scratch) -> boost::optional<std::string> {
-		        return toBoostOptional(serialize(value, scratch));
-	        })
-	        .DeserializationFunction(
-	            [deserialize = std::move(typeData.deserialize)](const auto& s, const auto& c)
-	                -> boost::optional<Util::PropertyDeserializationResult> {
-		            auto ret = deserialize(s, c);
-		            if (!ret) {
-			            return boost::none;
-		            }
-		            return Util::PropertyDeserializationResult{std::move(ret->scratchSpace),
-		                                                       std::move(ret->value)};
-	            });
-	registrationInfo.contextType = toBoostOptional(std::move(typeData.requiredContext));
-
-	if (typeData.enumNames) {
-		registrationInfo.SetEnumValueNames(std::move(*typeData.enumNames));
-	}
-
-	serializer.RegisterTypeAdvanced(std::move(typeData.typeName), std::move(registrationInfo));
+	serializer.RegisterTypeAdvanced(std::move(name), std::move(typeData));
 }

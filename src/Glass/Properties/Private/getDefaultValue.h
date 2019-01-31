@@ -51,9 +51,10 @@ namespace Glass {
 			    GlobalPropertyData::GetPropertyTypeSerializationData<typename T::property_type>();
 			// At this point, we don't have a context, so hope this works without.
 			auto deserialized = serializationData.deserialize(T::defaultValue, boost::any{});
-			ZVERIFYRETURN(deserialized != std::nullopt,
-			              Glass::PropertyDefinitionBase::DefaultValue{
-			                  boost::any{}, typename T::property_type::type{}});
+			ZVERIFYRETURN(
+			    deserialized,
+			    Glass::PropertyDefinitionBase::DefaultValue{boost::any{},
+			                                                typename T::property_type::type{}});
 			return Glass::PropertyDefinitionBase::DefaultValue{
 			    std::move(deserialized->scratchSpace), std::move(deserialized->value)};
 		}

@@ -18,6 +18,8 @@
 #include <type_traits>
 #include <unordered_map>
 
+#include "iZBase/Util/PropertySerializer.h"
+
 #include "Glass/Properties/Private/getName.h"
 #include "Glass/Properties/Types.h"
 #include <boost/callable_traits/is_invocable.hpp>
@@ -47,13 +49,8 @@ namespace Glass {
 			    std::function<std::optional<PropertyDeserializationResult>(const std::string&,
 			                                                          const boost::any&)>;
 
-			struct PropertyTypeSerializationData {
-				std::string typeName;
-				PropertySerializeFn serialize;
-				PropertyDeserializeFn deserialize;
-				std::optional<std::type_index> requiredContext;
-				std::optional<vector<string>> enumNames;
-			};
+			using PropertyTypeSerializationData =
+			    Util::PropertySerializer::AdvancedTypeRegistrationInfo;
 
 			using PropertySerializationMap =
 			    std::unordered_map<std::string, std::function<PropertyTypeSerializationData()>>;
@@ -68,7 +65,9 @@ namespace Glass {
 			//! Normally this shouldn't be called directly, but instead proeprties should be
 			//! registered with AddProeprtyTypeData<T>() or GLASS_REGISTER_PROPERTY_TYPE and
 			//! registered with registerGlobalPropertyTypes on startup
-			void registerPropertyType(Util::PropertySerializer&, PropertyTypeSerializationData);
+			void registerPropertyType(Util::PropertySerializer&,
+			                          std::string name,
+			                          PropertyTypeSerializationData data);
 
 			template <typename T, typename = std::void_t<>> struct EnumPropertyNames {
 				static std::nullopt_t Get() { return std::nullopt; }
@@ -103,31 +102,36 @@ namespace Glass {
 				              "deserialize must have a signature compatible with "
 				              "std::optional<type>(const std::string&)");
 				auto serialize = [](const boost::any& value,
-				                    const boost::any&) -> std::optional<std::string> {
+				                    const boost::any&) -> boost::optional<std::string> {
 					const typename T::type* typedValue = boost::any_cast<typename T::type>(&value);
 					if (!typedValue) {
 						ZERROR("Attempting to serialize an invalid type. Type to serialize "
 						       "must be type T.");
-						return std::nullopt;
+						return boost::none;
 					}
-					return T::serialize(*typedValue);
+					return std::optional_cast(std::optional<string>(T::serialize(*typedValue)));
 				};
-				auto deserialize = [](const string& serializedValue,
-				                      const auto&) -> std::optional<PropertyDeserializationResult> {
+				auto deserialize =
+				    [](const string& serializedValue,
+				       const auto&) -> boost::optional<Util::PropertyDeserializationResult> {
 					auto ret = T::deserialize(serializedValue);
 					if (!ret) {
-						return std::nullopt;
+						return boost::none;
 					}
-					return PropertyDeserializationResult{boost::any{}, std::move(*ret)};
+					return Util::PropertyDeserializationResult{boost::any{}, std::move(*ret)};
 				};
 
-				return PropertyTypeSerializationData{
-				    std::string{Private::getName<T>()},
-				    std::move(serialize),
-				    std::move(deserialize),
-				    std::nullopt,
-				    EnumPropertyNames<T>::Get(),
-				};
+				auto serializationData =
+				    PropertyTypeSerializationData()
+				        .SerializationFunction(std::move(serialize))
+				        .DeserializationFunction(std::move(deserialize))
+				        .template SetTypeForValueReporterConnection<typename T::type>();
+				if constexpr (!std::is_same<decltype(std::nullopt),
+				                            decltype(EnumPropertyNames<T>::Get())>::value) {
+					serializationData.SetEnumValueNames(EnumPropertyNames<T>::Get());
+				}
+
+				return serializationData;
 			}
 
 			//! Overload for scratch space serializers without context
@@ -153,39 +157,44 @@ namespace Glass {
 				    "deserialize must have a signature compatible with "
 				    "std::optional<ScratchSpaceAndValue<T::scratch_type, T::type>>(const std::string&)");
 				auto serialize = [](const boost::any& value,
-				                    const boost::any& scratch) -> std::optional<std::string> {
+				                    const boost::any& scratch) -> boost::optional<std::string> {
 					const typename T::type* typedValue = boost::any_cast<typename T::type>(&value);
 					if (!typedValue) {
 						ZERROR("Attempting to serialize an invalid type. Type to serialize "
 						       "must be type T.");
-						return std::nullopt;
+						return boost::none;
 					}
 					const typename T::scratch_type* typedScratch =
 					    boost::any_cast<typename T::scratch_type>(&scratch);
-					return T::serialize(*typedValue, typedScratch);
+					return std::optional_cast(std::optional<string>(T::serialize(*typedValue, typedScratch)));
 				};
-				auto deserialize = [](const string& serializedValue,
-				                      const auto&) -> std::optional<PropertyDeserializationResult> {
+				auto deserialize =
+				    [](const string& serializedValue,
+				       const auto&) -> boost::optional<Util::PropertyDeserializationResult> {
 					std::optional<
 					    Glass::ScratchSpaceAndValue<typename T::scratch_type, typename T::type>>
 					    ret = T::deserialize(serializedValue);
 					if (ret == std::nullopt) {
-						return std::nullopt;
+						return boost::none;
 					}
 					auto anyScratch = ret->scratchSpace
 					                      ? boost::any{std::move(*(ret->scratchSpace))}
 					                      : boost::any{};
-					return PropertyDeserializationResult{std::move(anyScratch),
-					                                     std::move(ret->value)};
+					return Util::PropertyDeserializationResult{std::move(anyScratch),
+					                                           std::move(ret->value)};
 				};
 
-				return PropertyTypeSerializationData{
-				    std::string{Private::getName<T>()},
-				    std::move(serialize),
-				    std::move(deserialize),
-				    std::nullopt,
-				    EnumPropertyNames<T>::Get(),
-				};
+				auto serializationData =
+				    PropertyTypeSerializationData()
+				        .SerializationFunction(std::move(serialize))
+				        .DeserializationFunction(std::move(deserialize))
+				        .template SetTypeForValueReporterConnection<typename T::type>();
+				if constexpr (!std::is_same<decltype(std::nullopt),
+				                            decltype(EnumPropertyNames<T>::Get())>::value) {
+					serializationData.SetEnumValueNames(EnumPropertyNames<T>::Get());
+				}
+
+				return serializationData;
 			}
 
 			//! overload for context serializers without scratch space
@@ -209,34 +218,39 @@ namespace Glass {
 				    "deserialize must have a signature compatible with "
 				    "std::optional<T::type>(const std::string&, const T::context_type*)");
 				auto serialize = [](const boost::any& value,
-				                    const boost::any&) -> std::optional<std::string> {
+				                    const boost::any&) -> boost::optional<std::string> {
 					const typename T::type* typedValue = boost::any_cast<typename T::type>(&value);
 					if (!typedValue) {
 						ZERROR("Attempting to serialize an invalid type. Type to serialize "
 						       "must be type T.");
-						return std::nullopt;
+						return boost::none;
 					}
-					return T::serialize(*typedValue);
+					return std::optional_cast(std::optional<string>(T::serialize(*typedValue)));
 				};
-				auto deserialize =
-				    [](const string& serializedValue,
-				       const boost::any& context) -> std::optional<PropertyDeserializationResult> {
+				auto deserialize = [](const string& serializedValue, const boost::any& context)
+				    -> boost::optional<Util::PropertyDeserializationResult> {
 					const typename T::context_type* typedContext =
 					    boost::any_cast<typename T::context_type>(&context);
 					std::optional<typename T::type> ret = T::deserialize(serializedValue, typedContext);
 					if (ret == std::nullopt) {
-						return std::nullopt;
+						return boost::none;
 					}
-					return PropertyDeserializationResult{boost::any{}, std::move(*ret)};
+					return Util::PropertyDeserializationResult{boost::any{}, std::move(*ret)};
 				};
 
-				return PropertyTypeSerializationData{
-				    std::string{Private::getName<T>()},
-				    std::move(serialize),
-				    std::move(deserialize),
-				    std::type_index{typeid(typename T::context_type)},
-				    EnumPropertyNames<T>::Get(),
-				};
+
+				auto serializationData =
+				    PropertyTypeSerializationData()
+				        .SerializationFunction(std::move(serialize))
+				        .DeserializationFunction(std::move(deserialize))
+				        .template ContextType<typename T::context_type>()
+				        .template SetTypeForValueReporterConnection<typename T::type>();
+				if constexpr (!std::is_same<decltype(std::nullopt),
+				                            decltype(EnumPropertyNames<T>::Get())>::value) {
+					serializationData.SetEnumValueNames(EnumPropertyNames<T>::Get());
+				}
+
+				return serializationData;
 			}
 
 			//! overload for serializers with both context and scratch space
@@ -263,49 +277,53 @@ namespace Glass {
 				              "std::optional<ScratchSpaceAndValue<T::scratch_type, T::type>>(const "
 				              "std::string&, const T::context_type*)");
 				auto serialize = [](const boost::any& value,
-				                    const boost::any& scratch) -> std::optional<std::string> {
+				                    const boost::any& scratch) -> boost::optional<std::string> {
 					const typename T::type* typedValue = boost::any_cast<typename T::type>(&value);
 					if (!typedValue) {
 						ZERROR("Attempting to serialize an invalid type. Type to serialize "
 						       "must be type T.");
-						return std::nullopt;
+						return boost::none;
 					}
 					const typename T::scratch_type* typedScratch =
 					    boost::any_cast<typename T::scratch_type>(&scratch);
-					return T::serialize(*typedValue, typedScratch);
+					return std::optional_cast(std::optional<string>(T::serialize(*typedValue, typedScratch)));
 				};
-				auto deserialize =
-				    [](const string& serializedValue,
-				       const boost::any& context) -> std::optional<PropertyDeserializationResult> {
+				auto deserialize = [](const string& serializedValue, const boost::any& context)
+				    -> boost::optional<Util::PropertyDeserializationResult> {
 					const typename T::context_type* typedContext =
 					    boost::any_cast<typename T::context_type>(&context);
 					std::optional<
 					    Glass::ScratchSpaceAndValue<typename T::scratch_type, typename T::type>>
 					    ret = T::deserialize(serializedValue, typedContext);
 					if (ret == std::nullopt) {
-						return std::nullopt;
+						return boost::none;
 					}
 					auto anyScratch = ret->scratchSpace
 					                      ? boost::any{std::move(*(ret->scratchSpace))}
 					                      : boost::any{};
-					return PropertyDeserializationResult{std::move(anyScratch),
-					                                     std::move(ret->value)};
+					return Util::PropertyDeserializationResult{std::move(anyScratch),
+					                                           std::move(ret->value)};
 				};
 
-				return PropertyTypeSerializationData{
-				    std::string{Private::getName<T>()},
-				    std::move(serialize),
-				    std::move(deserialize),
-				    std::type_index{typeid(typename T::context_type)},
-				    EnumPropertyNames<T>::Get(),
-				};
+				auto serializationData =
+				    PropertyTypeSerializationData()
+				        .SerializationFunction(std::move(serialize))
+				        .DeserializationFunction(std::move(deserialize))
+				        .template ContextType<typename T::context_type>()
+				        .template SetTypeForValueReporterConnection<typename T::type>();
+				if constexpr (!std::is_same<decltype(std::nullopt),
+				                            decltype(EnumPropertyNames<T>::Get())>::value) {
+					serializationData.SetEnumValueNames(EnumPropertyNames<T>::Get());
+				}
+
+				return serializationData;
 			}
 
 
 			template <typename T> void* AddPropertyTypeData(T* t = nullptr) {
 				auto& map = getPropertySerializationMap();
 				auto data = GetPropertyTypeSerializationData(t);
-				map.emplace(std::make_pair(data.typeName,
+				map.emplace(std::make_pair(Private::getName<T>(),
 				                           [] { return GetPropertyTypeSerializationData<T>(); }));
 				return nullptr;
 			}
