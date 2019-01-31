@@ -109,7 +109,8 @@ namespace Glass {
 						       "must be type T.");
 						return boost::none;
 					}
-					return std::optional_cast(std::optional<string>(T::serialize(*typedValue)));
+					auto serialized = std::optional<string>(T::serialize(*typedValue));
+					return serialized ? boost::optional<string>(*serialized) : boost::none;
 				};
 				auto deserialize =
 				    [](const string& serializedValue,
@@ -166,7 +167,8 @@ namespace Glass {
 					}
 					const typename T::scratch_type* typedScratch =
 					    boost::any_cast<typename T::scratch_type>(&scratch);
-					return std::optional_cast(std::optional<string>(T::serialize(*typedValue, typedScratch)));
+					auto serialized = std::optional<string>(T::serialize(*typedValue, typedScratch));
+					return serialized ? boost::optional<string>(*serialized) : boost::none;
 				};
 				auto deserialize =
 				    [](const string& serializedValue,
@@ -225,7 +227,8 @@ namespace Glass {
 						       "must be type T.");
 						return boost::none;
 					}
-					return std::optional_cast(std::optional<string>(T::serialize(*typedValue)));
+					auto serialized = std::optional<string>(T::serialize(*typedValue));
+					return serialized ? boost::optional<string>(*serialized) : boost::none;
 				};
 				auto deserialize = [](const string& serializedValue, const boost::any& context)
 				    -> boost::optional<Util::PropertyDeserializationResult> {
@@ -286,7 +289,8 @@ namespace Glass {
 					}
 					const typename T::scratch_type* typedScratch =
 					    boost::any_cast<typename T::scratch_type>(&scratch);
-					return std::optional_cast(std::optional<string>(T::serialize(*typedValue, typedScratch)));
+					auto serialized = std::optional<string>(T::serialize(*typedValue, typedScratch));
+					return serialized ? boost::optional<string>(*serialized) : boost::none;
 				};
 				auto deserialize = [](const string& serializedValue, const boost::any& context)
 				    -> boost::optional<Util::PropertyDeserializationResult> {
