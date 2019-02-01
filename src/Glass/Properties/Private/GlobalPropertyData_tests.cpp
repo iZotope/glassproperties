@@ -150,3 +150,53 @@ TEST(GlobalPropertyTypeRegistration, SupportsScratchSpaceWithContext) {
 	ASSERT_TRUE(reserializedCool);
 	ASSERT_EQ(std::string{"Cool Context"}, *reserializedCool);
 }
+
+struct TestKeypathPropertyType : Glass::PropertyType<int32_t> {
+	static constexpr auto name = "TestContext";
+	static Glass::optional<std::string> serialize(int32_t) { return Glass::nullopt; }
+	static Glass::optional<int32_t> deserialize(const std::string&) { return Glass::nullopt; }
+	static const bool is_keypath = true;
+};
+
+
+TEST(GlobalPropertyTypeRegistration, SupportsIsKeypath) {
+	Util::PropertySerializer serializer{};
+
+	Glass::Private::GlobalPropertyData::registerPropertyType(
+	    serializer,
+	    Glass::Private::getName<TestKeypathPropertyType>(),
+	    Glass::Private::GlobalPropertyData::GetPropertyTypeSerializationData<
+	        TestKeypathPropertyType>());
+
+	auto designAidInfo = Util::variant_cast<Util::PropertySerializer::DesignAidKVCPathInfo>(
+	    serializer.GetDesignAidInfoForType(Glass::Private::getName<TestKeypathPropertyType>()));
+	ASSERT_TRUE(designAidInfo);
+	ASSERT_TRUE(designAidInfo->canSetKVCValue(static_cast<TestKeypathPropertyType::type>(32)));
+	ASSERT_FALSE(designAidInfo->canSetKVCValue("This is not a pipe"));
+}
+
+struct TestMultipleKeypathsPropertyType : Glass::PropertyType<int64_t> {
+	static constexpr auto name = "TestContext";
+	static Glass::optional<std::string> serialize(int64_t) { return Glass::nullopt; }
+	static Glass::optional<int64_t> deserialize(const std::string&) { return Glass::nullopt; }
+	using allowed_keypath_types = std::tuple<int32_t, float>;
+};
+
+
+TEST(GlobalPropertyTypeRegistration, SupportsMultipleKeypathTypes) {
+	Util::PropertySerializer serializer{};
+
+	Glass::Private::GlobalPropertyData::registerPropertyType(
+	    serializer,
+	    Glass::Private::getName<TestMultipleKeypathsPropertyType>(),
+	    Glass::Private::GlobalPropertyData::GetPropertyTypeSerializationData<
+	        TestMultipleKeypathsPropertyType>());
+
+	auto designAidInfo = Util::variant_cast<Util::PropertySerializer::DesignAidKVCPathInfo>(
+	    serializer.GetDesignAidInfoForType(
+	        Glass::Private::getName<TestMultipleKeypathsPropertyType>()));
+	ASSERT_TRUE(designAidInfo);
+	ASSERT_TRUE(designAidInfo->canSetKVCValue(static_cast<int32_t>(32)));
+	ASSERT_TRUE(designAidInfo->canSetKVCValue(static_cast<float>(32.f)));
+	ASSERT_FALSE(designAidInfo->canSetKVCValue("This is not a pipe"));
+}
