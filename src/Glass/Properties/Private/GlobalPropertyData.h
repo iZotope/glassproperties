@@ -80,6 +80,19 @@ namespace Glass {
 				}
 			};
 
+			template <typename T>
+			void maybeRegisterEnumPropertyNames(
+			    typename std::enable_if<
+			        std::is_same<decltype(std::nullopt), decltype(EnumPropertyNames<T>::Get())>::value,
+			        PropertyTypeSerializationData>::type&) {}
+
+			template <typename T>
+			void maybeRegisterEnumPropertyNames(
+			    typename std::enable_if<
+			        !std::is_same<decltype(std::nullopt), decltype(EnumPropertyNames<T>::Get())>::value,
+			        PropertyTypeSerializationData>::type& data) {
+				data.SetEnumValueNames(EnumPropertyNames<T>::Get());
+			}
 
 			BOOST_TTI_HAS_TYPE(scratch_type);
 			BOOST_TTI_HAS_TYPE(context_type);
@@ -127,11 +140,7 @@ namespace Glass {
 				        .SerializationFunction(std::move(serialize))
 				        .DeserializationFunction(std::move(deserialize))
 				        .template SetTypeForValueReporterConnection<typename T::type>();
-				if constexpr (!std::is_same<decltype(std::nullopt),
-				                            decltype(EnumPropertyNames<T>::Get())>::value) {
-					serializationData.SetEnumValueNames(EnumPropertyNames<T>::Get());
-				}
-
+				maybeRegisterEnumPropertyNames<T>(serializationData);
 				return serializationData;
 			}
 
@@ -191,10 +200,7 @@ namespace Glass {
 				        .SerializationFunction(std::move(serialize))
 				        .DeserializationFunction(std::move(deserialize))
 				        .template SetTypeForValueReporterConnection<typename T::type>();
-				if constexpr (!std::is_same<decltype(std::nullopt),
-				                            decltype(EnumPropertyNames<T>::Get())>::value) {
-					serializationData.SetEnumValueNames(EnumPropertyNames<T>::Get());
-				}
+				maybeRegisterEnumPropertyNames<T>(serializationData);
 
 				return serializationData;
 			}
@@ -248,10 +254,7 @@ namespace Glass {
 				        .DeserializationFunction(std::move(deserialize))
 				        .template ContextType<typename T::context_type>()
 				        .template SetTypeForValueReporterConnection<typename T::type>();
-				if constexpr (!std::is_same<decltype(std::nullopt),
-				                            decltype(EnumPropertyNames<T>::Get())>::value) {
-					serializationData.SetEnumValueNames(EnumPropertyNames<T>::Get());
-				}
+				maybeRegisterEnumPropertyNames<T>(serializationData);
 
 				return serializationData;
 			}
@@ -315,10 +318,7 @@ namespace Glass {
 				        .DeserializationFunction(std::move(deserialize))
 				        .template ContextType<typename T::context_type>()
 				        .template SetTypeForValueReporterConnection<typename T::type>();
-				if constexpr (!std::is_same<decltype(std::nullopt),
-				                            decltype(EnumPropertyNames<T>::Get())>::value) {
-					serializationData.SetEnumValueNames(EnumPropertyNames<T>::Get());
-				}
+				maybeRegisterEnumPropertyNames<T>(serializationData);
 
 				return serializationData;
 			}
