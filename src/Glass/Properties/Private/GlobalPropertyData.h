@@ -70,28 +70,21 @@ namespace Glass {
 			                          PropertyTypeSerializationData data);
 
 			template <typename T, typename = std::void_t<>> struct EnumPropertyNames {
-				static std::nullopt_t Get() { return std::nullopt; }
+				static void addToSerializationData(PropertyTypeSerializationData&) {}
 			};
+
 			template <typename T>
 			struct EnumPropertyNames<T, std::void_t<decltype(T::type::_names())>> {
-				static vector<std::string> Get() {
+				static void addToSerializationData(PropertyTypeSerializationData& data) {
 					const auto nameIterator = T::type::_names();
-					return vector<std::string>(begin(nameIterator), end(nameIterator));
+					data.SetEnumValueNames(
+					    vector<std::string>(begin(nameIterator), end(nameIterator)));
 				}
 			};
 
 			template <typename T>
-			void maybeRegisterEnumPropertyNames(
-			    typename std::enable_if<
-			        std::is_same<decltype(std::nullopt), decltype(EnumPropertyNames<T>::Get())>::value,
-			        PropertyTypeSerializationData>::type&) {}
-
-			template <typename T>
-			void maybeRegisterEnumPropertyNames(
-			    typename std::enable_if<
-			        !std::is_same<decltype(std::nullopt), decltype(EnumPropertyNames<T>::Get())>::value,
-			        PropertyTypeSerializationData>::type& data) {
-				data.SetEnumValueNames(EnumPropertyNames<T>::Get());
+			void maybeRegisterEnumPropertyNames(PropertyTypeSerializationData& data) {
+				EnumPropertyNames<T>::addToSerializationData(data);
 			}
 
 			BOOST_TTI_HAS_TYPE(scratch_type);
