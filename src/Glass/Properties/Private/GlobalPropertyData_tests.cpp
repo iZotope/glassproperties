@@ -151,10 +151,10 @@ TEST(GlobalPropertyTypeRegistration, SupportsScratchSpaceWithContext) {
 	ASSERT_EQ(std::string{"Cool Context"}, *reserializedCool);
 }
 
-struct TestKeypathPropertyType : Glass::PropertyType<int32_t> {
+struct TestKeypathPropertyType : Glass::PropertyType<int32_t*> {
 	static constexpr auto name = "TestContext";
-	static Glass::optional<std::string> serialize(int32_t) { return Glass::nullopt; }
-	static Glass::optional<int32_t> deserialize(const std::string&) { return Glass::nullopt; }
+	static Glass::optional<std::string> serialize(int32_t*) { return Glass::nullopt; }
+	static Glass::optional<int32_t*> deserialize(const std::string&) { return Glass::nullopt; }
 	static const bool is_keypath = true;
 };
 
@@ -170,8 +170,9 @@ TEST(GlobalPropertyTypeRegistration, SupportsIsKeypath) {
 
 	auto designAidInfo = Util::variant_cast<Util::PropertySerializer::DesignAidKVCPathInfo>(
 	    serializer.GetDesignAidInfoForType(Glass::Private::getName<TestKeypathPropertyType>()));
+	int32_t test = 32;
 	ASSERT_TRUE(designAidInfo);
-	ASSERT_TRUE(designAidInfo->canSetKVCValue(static_cast<TestKeypathPropertyType::type>(32)));
+	ASSERT_TRUE(designAidInfo->canSetKVCValue(&test));
 	ASSERT_FALSE(designAidInfo->canSetKVCValue("This is not a pipe"));
 }
 
@@ -179,7 +180,7 @@ struct TestMultipleKeypathsPropertyType : Glass::PropertyType<int64_t> {
 	static constexpr auto name = "TestContext";
 	static Glass::optional<std::string> serialize(int64_t) { return Glass::nullopt; }
 	static Glass::optional<int64_t> deserialize(const std::string&) { return Glass::nullopt; }
-	using allowed_keypath_types = std::tuple<int32_t, float>;
+	using allowed_keypath_types = std::tuple<int32_t*, float*>;
 };
 
 
@@ -196,7 +197,9 @@ TEST(GlobalPropertyTypeRegistration, SupportsMultipleKeypathTypes) {
 	    serializer.GetDesignAidInfoForType(
 	        Glass::Private::getName<TestMultipleKeypathsPropertyType>()));
 	ASSERT_TRUE(designAidInfo);
-	ASSERT_TRUE(designAidInfo->canSetKVCValue(static_cast<int32_t>(32)));
-	ASSERT_TRUE(designAidInfo->canSetKVCValue(static_cast<float>(32.f)));
-	ASSERT_FALSE(designAidInfo->canSetKVCValue("This is not a pipe"));
+	int32_t test1;
+	ASSERT_TRUE(designAidInfo->canSetKVCValue(&test1));
+	float test2;
+	ASSERT_TRUE(designAidInfo->canSetKVCValue(&test2));
+	ASSERT_FALSE(designAidInfo->canSetKVCValue("I am not a number!"));
 }

@@ -24,6 +24,7 @@
 #include "Glass/Properties/Types.h"
 #include <boost/callable_traits/is_invocable.hpp>
 #include <boost/tti/has_type.hpp>
+#include <boost/tti/has_static_member_data.hpp>
 
 namespace Util {
 	class PropertySerializer;
@@ -87,8 +88,55 @@ namespace Glass {
 				EnumPropertyNames<T>::addToSerializationData(data);
 			}
 
+			BOOST_TTI_HAS_STATIC_MEMBER_DATA(is_keypath);
+			BOOST_TTI_HAS_TYPE(allowed_keypath_types);
+
+			template <typename T,
+			          bool = has_static_member_data_is_keypath<T, const bool>::value,
+			          bool = has_type_allowed_keypath_types<T>::value>
+			struct KeyPathInfo;
+
+			template <typename T> struct KeyPathInfo<T, false, false> {
+				static void addToSerializationData(PropertyTypeSerializationData&) {}
+			};
+
+			template <typename T> struct KeyPathInfo<T, true, false> {
+				static void addToSerializationData(PropertyTypeSerializationData& data) {
+					if (T::is_keypath) {
+						data.template SetExpectedKeyPathType<typename T::type>();
+					}
+				}
+			};
+
+			inline bool isAnyOneOf(const boost::any&, std::tuple<>* = nullptr) { return false; }
+
+			template <typename T, typename... Ts>
+			bool isAnyOneOf(const boost::any& value, std::tuple<T, Ts...>* = nullptr) {
+				if (Controller::KeyValueCoding::CastFromAny<T>(value)) {
+					return true;
+				}
+				return isAnyOneOf(value, static_cast<std::tuple<Ts...>*>(nullptr));
+			}
+
+			template <typename T> struct KeyPathInfo<T, false, true> {
+				static void addToSerializationData(PropertyTypeSerializationData& data) {
+					data.designAidInfo = Util::PropertySerializer::DesignAidKVCPathInfo{
+					    [](const boost::any& maybeValueReporter) -> bool {
+						    return isAnyOneOf(
+						        maybeValueReporter,
+						        static_cast<typename std::add_pointer<
+						            typename T::allowed_keypath_types>::type>(nullptr));
+					    }};
+				}
+			};
+
+			template <typename T> void maybeAddKeyPathInfo(PropertyTypeSerializationData& data) {
+				KeyPathInfo<T>::addToSerializationData(data);
+			}
+
 			BOOST_TTI_HAS_TYPE(scratch_type);
 			BOOST_TTI_HAS_TYPE(context_type);
+
 
 			//! Overload for basic serializers with neither context nor scratch types
 			template <typename T>
@@ -134,6 +182,7 @@ namespace Glass {
 				        .DeserializationFunction(std::move(deserialize))
 				        .template SetTypeForValueReporterConnection<typename T::type>();
 				maybeRegisterEnumPropertyNames<T>(serializationData);
+				maybeAddKeyPathInfo<T>(serializationData);
 				return serializationData;
 			}
 
@@ -194,6 +243,7 @@ namespace Glass {
 				        .DeserializationFunction(std::move(deserialize))
 				        .template SetTypeForValueReporterConnection<typename T::type>();
 				maybeRegisterEnumPropertyNames<T>(serializationData);
+				maybeAddKeyPathInfo<T>(serializationData);
 
 				return serializationData;
 			}
@@ -248,6 +298,7 @@ namespace Glass {
 				        .template ContextType<typename T::context_type>()
 				        .template SetTypeForValueReporterConnection<typename T::type>();
 				maybeRegisterEnumPropertyNames<T>(serializationData);
+				maybeAddKeyPathInfo<T>(serializationData);
 
 				return serializationData;
 			}
@@ -312,6 +363,7 @@ namespace Glass {
 				        .template ContextType<typename T::context_type>()
 				        .template SetTypeForValueReporterConnection<typename T::type>();
 				maybeRegisterEnumPropertyNames<T>(serializationData);
+				maybeAddKeyPathInfo<T>(serializationData);
 
 				return serializationData;
 			}
