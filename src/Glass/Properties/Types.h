@@ -15,7 +15,18 @@
 
 #pragma once
 
+
+
+#include "iZBase/Controller/FloatParam.h"
+#include "iZBase/Controller/KeyValueCoding.h"
+
+#include "Glass/Properties/Scale.h"
 #include "Glass/Float4Dim.h"
+#include "Glass/Color.h"
+#include "Glass/Font.h"
+#include "Glass/Image.h"
+#include "Glass/SpriteSheet.h"
+
 #include "Glass/Properties/Private/getName.h"
 
 #include "fmt/format.h"
@@ -95,6 +106,21 @@ namespace Glass {
 	//!      std::optional<std::string> serialize(const T& value, const scratch_type* scratch)
 	//!   See FloatControllerPropertyType below for an example of a deserializer with a context and
 	//!   scratch.
+	//!
+	//! # Advanced serialization: Key Path Types
+	//!
+	//!   Many of our types are meant to be serialized as "Key Paths", i.e., strings that are
+	//!   interpreted by the environment to refer to globally registered values. For basic usage,
+	//!   where the serialized string is a keypath to a value of the main type of the property,
+	//!   simply add a `static const bool is_keypath = true;`.  This provides a hint to any GUI
+	//!   design tools that keypaths are valid serialized values.
+	//!
+	//!   Some types (e.g., EnumOrFloatControllerPropertyType below), can be serialized as keypaths,
+	//!   but those paths don't necessarily point to the exact type of the property - for example,
+	//!   EnumOrFloatControllerPropertyType supports keypaths to FloatParam* OR keypaths to
+	//!   EnumParam* but does NOT support keypaths to EnumOrFloatParam.  To handle this, instead add
+	//!   a member type named `allowed_keypath_types`, which should be a std::tuple containing each
+	//!   allowed keypath type.
 	template <typename T, typename = std::void_t<>> struct PropertyType { using type = T; };
 
 	//! When T is a BETTER_ENUM, name,serialize, and deserialize will be automatically generated
@@ -178,5 +204,115 @@ namespace Glass {
 
 	struct StringPropertyType : PropertyType<std::string> {
 		static constexpr auto name = "String";
+	};
+
+	struct PointPropertyType : PropertyType<Point> {
+		static constexpr auto name = "Glass::Point";
+	};
+
+	struct SizePropertyType : PropertyType<Size> {
+		static constexpr auto name = "Glass::Size";
+	};
+
+	struct RectPropertyType : PropertyType<Rect> {
+		static constexpr auto name = "Glass::Rect";
+	};
+
+	struct ColorPropertyType : PropertyType<Color> {
+		static constexpr auto name = "Glass::Color";
+	};
+
+	struct FontPropertyType : PropertyType<Typeface> {
+		static constexpr auto name = "Glass::Font";
+	};
+
+	struct ImagePropertyType : PropertyType<Image> {
+		static constexpr auto name = "Glass::Image";
+	};
+
+	struct SpriteSheetPropertyType : PropertyType<SpriteSheet> {
+		static constexpr auto name = "Glass::SpriteSheet";
+	};
+
+	struct FloatControllerPropertyType : PropertyType<::Controller::FloatParam*> {
+		static constexpr auto name = "FloatController";
+
+		struct scratch_type {
+			std::string serializedRepresentation;
+			shared_ptr<::Controller::FloatParam> paramBacking;
+		};
+		using context_type = ::Controller::KeyValueCoding*;
+		static std::optional<std::string> serialize(::Controller::FloatParam* controller,
+		                                       const scratch_type* scratch);
+		using Deserialized = ScratchSpaceAndValue<scratch_type, type>;
+		static std::optional<Deserialized> deserialize(const std::string& value,
+		                                          const context_type* kvc);
+		static const bool is_keypath = true;
+	};
+
+	struct EnumControllerPropertyType : PropertyType<::Controller::EnumParam*> {
+		static constexpr auto name = "EnumController";
+
+		struct scratch_type {
+			std::string serializedRepresentation;
+			shared_ptr<::Controller::EnumParam> paramBacking;
+		};
+		using context_type = ::Controller::KeyValueCoding*;
+		static std::optional<std::string> serialize(::Controller::EnumParam* controller,
+		                                       const scratch_type* scratch);
+		using Deserialized = ScratchSpaceAndValue<scratch_type, type>;
+		static std::optional<Deserialized> deserialize(const std::string& value,
+												  const context_type* kvc);
+		static const bool is_keypath = true;
+	};
+
+	struct BoolControllerPropertyType : PropertyType<::Controller::BoolParam*> {
+		static constexpr auto name = "BoolController";
+
+		struct scratch_type {
+			std::string serializedRepresentation;
+			shared_ptr<::Controller::BoolParam> paramBacking;
+		};
+		using context_type = ::Controller::KeyValueCoding*;
+		static std::optional<std::string> serialize(::Controller::BoolParam* controller,
+		                                       const scratch_type* scratch);
+		using Deserialized = ScratchSpaceAndValue<scratch_type, type>;
+		static std::optional<Deserialized> deserialize(const std::string& value,
+		                                          const context_type* kvc);
+		static const bool is_keypath = true;
+	};
+
+	struct FloatScalePropertyType : PropertyType<FloatScale> {
+		static constexpr auto name = "FloatScale";
+		static std::string serialize(const FloatScale& value) { return value.ToString(); }
+		static std::optional<FloatScale> deserialize(const std::string& serializedValue) {
+			return FloatScale::MakeFromString(serializedValue);
+		}
+	};
+
+	struct FloatIntervalPropertyType : PropertyType<FloatInterval> {
+		static constexpr auto name = "FloatInterval";
+	};
+
+	struct DirectionalFloatIntervalPropertyType : PropertyType<DirectionalFloatInterval> {
+		static constexpr auto name = "DirectionalFloatInterval";
+	};
+
+	using EnumOrFloatParam = boost::variant<::Controller::FloatParam*, ::Controller::EnumParam*>;
+	struct EnumOrFloatControllerPropertyType : PropertyType<EnumOrFloatParam> {
+		static constexpr auto name = "EnumOrFloatController";
+
+		struct scratch_type {
+			std::string serializedRepresentation;
+			boost::variant<shared_ptr<::Controller::FloatParam>, shared_ptr<::Controller::EnumParam>> paramBacking;
+		};
+		using context_type = ::Controller::KeyValueCoding*;
+		static std::optional<std::string> serialize(EnumOrFloatParam controller,
+			const scratch_type* scratch);
+		using Deserialized = ScratchSpaceAndValue<scratch_type, type>;
+		static std::optional<Deserialized> deserialize(const std::string& value,
+			const context_type* kvc);
+		using allowed_keypath_types =
+		    std::tuple<::Controller::FloatParam*, ::Controller::EnumParam*>;
 	};
 }
