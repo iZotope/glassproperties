@@ -112,7 +112,7 @@ namespace Glass {
 
 			template <typename T, typename... Ts>
 			bool isAnyOneOf(const boost::any& value, std::tuple<T, Ts...>* = nullptr) {
-				if (Controller::KeyValueCoding::CastFromAny<T>(value)) {
+				if (::Controller::KeyValueCoding::CastFromAny<T>(value)) {
 					return true;
 				}
 				return isAnyOneOf(value, static_cast<std::tuple<Ts...>*>(nullptr));
