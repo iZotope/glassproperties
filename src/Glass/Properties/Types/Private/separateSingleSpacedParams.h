@@ -15,7 +15,13 @@
 
 #pragma once
 
-#include "Glass/Properties/Types/Builtins.h"
-#include "Glass/Properties/Types/OptionalProperty.h"
-#include "Glass/Properties/Types/PropertyType.h"
-#include "Glass/Properties/Types/VectorProperty.h"
+namespace Glass {
+	namespace Private {
+		inline std::vector<String> separateSingleSpacedParams(const std::string& serializedValue) {
+			String strippedStr = String{serializedValue}.ReplaceChar('#', ' ').StripWhiteSpace();
+			std::vector<String> results;
+			strippedStr.Split(' ', results);
+			return results;
+		};
+	}
+}

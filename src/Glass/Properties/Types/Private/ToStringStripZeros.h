@@ -15,7 +15,15 @@
 
 #pragma once
 
-#include "Glass/Properties/Types/Builtins.h"
-#include "Glass/Properties/Types/OptionalProperty.h"
-#include "Glass/Properties/Types/PropertyType.h"
-#include "Glass/Properties/Types/VectorProperty.h"
+namespace Glass {
+	namespace Private {
+		inline std::string ToStringStripZeros(float value, int precision) {
+			auto s = fmt::format("{:.{}f}", value, precision);
+			s.erase(s.find_last_not_of('0') + 1, std::string::npos);
+			if (s.find('.') == s.length() - 1) {
+				s.erase(s.find('.'));
+			}
+			return s;
+		};
+	}
+}

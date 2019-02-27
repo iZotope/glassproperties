@@ -15,7 +15,14 @@
 
 #pragma once
 
-#include "Glass/Properties/Types/Builtins.h"
-#include "Glass/Properties/Types/OptionalProperty.h"
-#include "Glass/Properties/Types/PropertyType.h"
-#include "Glass/Properties/Types/VectorProperty.h"
+#include <boost/tti/has_static_member_data.hpp>
+#include <boost/tti/has_type.hpp>
+
+namespace Glass {
+	namespace Private {
+		BOOST_TTI_HAS_TYPE(scratch_type);
+		BOOST_TTI_HAS_TYPE(context_type);
+		BOOST_TTI_HAS_TYPE(allowed_keypath_types);
+		BOOST_TTI_HAS_STATIC_MEMBER_DATA(is_keypath);
+	}
+}

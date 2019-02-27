@@ -13,9 +13,26 @@
 // limitations under the License.
 
 
-#pragma once
+#include "iZBase/common/common.h"
 
-#include "Glass/Properties/Types/Builtins.h"
-#include "Glass/Properties/Types/OptionalProperty.h"
 #include "Glass/Properties/Types/PropertyType.h"
-#include "Glass/Properties/Types/VectorProperty.h"
+
+using namespace Glass;
+
+namespace {
+	template <typename T, typename = std::void_t<>>
+	struct IsBetterEnumPropertyType : std::false_type {};
+
+	template <typename T>
+	struct IsBetterEnumPropertyType<
+	    T,
+	    std::void_t<decltype(T::name), decltype(&T::serialize), decltype(&T::deserialize)>>
+	    : std::true_type {};
+
+	BETTER_ENUM(TestEnum, int32_t, ThingOne, ThingTwo);
+
+	using TestEnumType = PropertyType<TestEnum>;
+
+	static_assert(IsBetterEnumPropertyType<TestEnumType>::value,
+	              "TestEnum did not create a specialized PropertyType for a BETTER_ENUM.");
+}
