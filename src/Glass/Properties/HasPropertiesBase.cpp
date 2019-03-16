@@ -19,6 +19,12 @@
 
 using namespace Glass;
 
-HasPropertiesBase::HasPropertiesBase() = default;
+
+HasPropertiesBase::HasPropertiesBase()
+    : m_managedPropertyHolder{make_unique<Util::PropertyHolder>()}
+    , m_propertyHolder{*m_managedPropertyHolder.get()} {}
+
+HasPropertiesBase::HasPropertiesBase(Util::PropertyHolder& propertyHolder)
+    : m_propertyHolder{propertyHolder} {}
 
 HasPropertiesBase::~HasPropertiesBase() = default;

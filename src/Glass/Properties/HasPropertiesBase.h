@@ -18,7 +18,13 @@
 #include "Glass/Properties/Private/getName.h"
 #include "iZBase/Util/PropertyHolder.h"
 
+namespace Burlap {
+	template <typename V> class View;
+}
+
 namespace Glass {
+	class ViewDesignInterface;
+
 	//! Base class for classes that have properties.
 	//!
 	//! Through multiple inheritance it is possible to inherit from two different
@@ -28,7 +34,9 @@ namespace Glass {
 	//! U.
 	class HasPropertiesBase {
 		friend class Flex;
+		template <typename V> friend class Burlap::View;
 		template <typename Ps, typename U> friend class HasProperties;
+		friend class ViewDesignInterface;
 
 	public:
 		virtual ~HasPropertiesBase() = 0;
@@ -37,7 +45,10 @@ namespace Glass {
 		HasPropertiesBase();
 
 	private:
-		Util::PropertyHolder m_propertyHolder;
+		HasPropertiesBase(Util::PropertyHolder&);
+
+		unique_ptr<Util::PropertyHolder> m_managedPropertyHolder;
+		Util::PropertyHolder& m_propertyHolder;
 		Trackable m_trackable;
 	};
 }
