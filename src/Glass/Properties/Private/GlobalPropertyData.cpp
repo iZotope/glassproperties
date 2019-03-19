@@ -26,9 +26,14 @@ Glass::Private::GlobalPropertyData::getPropertySerializationMap() {
 
 void Glass::Private::GlobalPropertyData::registerGlobalPropertyTypes(
     Util::PropertySerializer& serializer) {
+	static const Util::iZUUID uuid{};
+	if (serializer.GetDidRegisterTypesForUUID(uuid)) {
+		return;
+	}
 	for (auto& p : getPropertySerializationMap()) {
 		registerPropertyType(serializer, p.first, (p.second)());
 	}
+	serializer.SetDidRegisterTypesForUUID(uuid);
 }
 
 template <typename T> static boost::optional<T> toBoostOptional(Glass::optional<T> optT) {
