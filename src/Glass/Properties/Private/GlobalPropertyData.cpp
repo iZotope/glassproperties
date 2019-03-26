@@ -36,13 +36,6 @@ void Glass::Private::GlobalPropertyData::registerGlobalPropertyTypes(
 	serializer.SetDidRegisterTypesForUUID(uuid);
 }
 
-template <typename T> static boost::optional<T> toBoostOptional(Glass::optional<T> optT) {
-	if (!optT) {
-		return boost::none;
-	}
-	return boost::optional<T>{std::move(*optT)};
-}
-
 void Glass::Private::GlobalPropertyData::registerPropertyType(
     Util::PropertySerializer& serializer,
     std::string name,

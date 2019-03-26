@@ -22,7 +22,7 @@
 
 #include "Glass/Properties/Private/getName.h"
 #include "Glass/Properties/Private/has_type.h"
-#include "Glass/Properties/Types/OptionalProperty.h"
+#include "Glass/Properties/Types/ScratchSpaceAndValue.h"
 
 namespace Util {
 	class PropertySerializer;
@@ -42,11 +42,11 @@ namespace Glass {
 			using PropertySerializeFn =
 			    std::function<std::optional<std::string>(const boost::any&, const boost::any&)>;
 
-			// This is the most general possible deserialize function - it takes a string a context,
-			// and returns the value and the scratch space.
+			// This is the most general possible deserialize function - it takes a std::string a
+			// context, and returns the value and the scratch space.
 			using PropertyDeserializeFn =
 			    std::function<std::optional<PropertyDeserializationResult>(const std::string&,
-			                                                          const boost::any&)>;
+			                                                               const boost::any&)>;
 
 			using PropertyTypeSerializationData =
 			    Util::PropertySerializer::AdvancedTypeRegistrationInfo;
@@ -147,12 +147,12 @@ namespace Glass {
 			                            !has_type_context_type<T>::value,
 			                        PropertyTypeSerializationData>::type
 			GetPropertyTypeSerializationData(T* = nullptr) {
-				static_assert(
-				    std::is_convertible_v<decltype(T::serialize(
-				                              std::declval<const typename T::type&>())),
-				                          std::optional<std::string>>,
-				    "serialize must have a signature compatible with std::optional<std::string>(const "
-				    "type&)");
+				static_assert(std::is_convertible_v<decltype(T::serialize(
+				                                        std::declval<const typename T::type&>())),
+				                                    std::optional<std::string>>,
+				              "serialize must have a signature compatible with "
+				              "std::optional<std::string>(const "
+				              "type&)");
 				static_assert(std::is_convertible_v<decltype(T::deserialize(
 				                                        std::declval<const std::string&>())),
 				                                    std::optional<typename T::type>>,
@@ -166,11 +166,11 @@ namespace Glass {
 						       "must be type T.");
 						return boost::none;
 					}
-					auto serialized = std::optional<string>(T::serialize(*typedValue));
-					return serialized ? boost::optional<string>(*serialized) : boost::none;
+					auto serialized = std::optional<std::string>(T::serialize(*typedValue));
+					return serialized ? boost::optional<std::string>(*serialized) : boost::none;
 				};
 				auto deserialize =
-				    [](const string& serializedValue,
+				    [](const std::string& serializedValue,
 				       const auto&) -> boost::optional<Util::PropertyDeserializationResult> {
 					auto ret = T::deserialize(serializedValue);
 					if (!ret) {
@@ -206,7 +206,8 @@ namespace Glass {
 				static_assert(
 				    std::is_convertible_v<
 				        decltype(T::deserialize(std::declval<const std::string&>())),
-				        std::optional<ScratchSpaceAndValue<typename T::scratch_type, typename T::type>>>,
+				        std::optional<
+				            ScratchSpaceAndValue<typename T::scratch_type, typename T::type>>>,
 				    "deserialize must have a signature compatible with "
 				    "std::optional<ScratchSpaceAndValue<T::scratch_type, T::type>>(const std::string&)");
 				auto serialize = [](const boost::any& value,
@@ -219,11 +220,12 @@ namespace Glass {
 					}
 					const typename T::scratch_type* typedScratch =
 					    boost::any_cast<typename T::scratch_type>(&scratch);
-					auto serialized = std::optional<string>(T::serialize(*typedValue, typedScratch));
-					return serialized ? boost::optional<string>(*serialized) : boost::none;
+					auto serialized =
+					    std::optional<std::string>(T::serialize(*typedValue, typedScratch));
+					return serialized ? boost::optional<std::string>(*serialized) : boost::none;
 				};
 				auto deserialize =
-				    [](const string& serializedValue,
+				    [](const std::string& serializedValue,
 				       const auto&) -> boost::optional<Util::PropertyDeserializationResult> {
 					std::optional<
 					    Glass::ScratchSpaceAndValue<typename T::scratch_type, typename T::type>>
@@ -277,14 +279,15 @@ namespace Glass {
 						       "must be type T.");
 						return boost::none;
 					}
-					auto serialized = std::optional<string>(T::serialize(*typedValue));
-					return serialized ? boost::optional<string>(*serialized) : boost::none;
+					auto serialized = std::optional<std::string>(T::serialize(*typedValue));
+					return serialized ? boost::optional<std::string>(*serialized) : boost::none;
 				};
-				auto deserialize = [](const string& serializedValue, const boost::any& context)
+				auto deserialize = [](const std::string& serializedValue, const boost::any& context)
 				    -> boost::optional<Util::PropertyDeserializationResult> {
 					const typename T::context_type* typedContext =
 					    boost::any_cast<typename T::context_type>(&context);
-					std::optional<typename T::type> ret = T::deserialize(serializedValue, typedContext);
+					std::optional<typename T::type> ret =
+					    T::deserialize(serializedValue, typedContext);
 					if (ret == std::nullopt) {
 						return boost::none;
 					}
@@ -322,7 +325,8 @@ namespace Glass {
 				    std::is_convertible_v<
 				        decltype(T::deserialize(std::declval<const std::string&>(),
 				                                std::declval<const typename T::context_type*>())),
-				        std::optional<ScratchSpaceAndValue<typename T::scratch_type, typename T::type>>>,
+				        std::optional<
+				            ScratchSpaceAndValue<typename T::scratch_type, typename T::type>>>,
 				    "deserialize must have a signature compatible with "
 				    "std::optional<ScratchSpaceAndValue<T::scratch_type, T::type>>(const "
 				    "std::string&, const T::context_type*)");
@@ -336,10 +340,11 @@ namespace Glass {
 					}
 					const typename T::scratch_type* typedScratch =
 					    boost::any_cast<typename T::scratch_type>(&scratch);
-					auto serialized = std::optional<string>(T::serialize(*typedValue, typedScratch));
-					return serialized ? boost::optional<string>(*serialized) : boost::none;
+					auto serialized =
+					    std::optional<std::string>(T::serialize(*typedValue, typedScratch));
+					return serialized ? boost::optional<std::string>(*serialized) : boost::none;
 				};
-				auto deserialize = [](const string& serializedValue, const boost::any& context)
+				auto deserialize = [](const std::string& serializedValue, const boost::any& context)
 				    -> boost::optional<Util::PropertyDeserializationResult> {
 					const typename T::context_type* typedContext =
 					    boost::any_cast<typename T::context_type>(&context);
@@ -371,15 +376,14 @@ namespace Glass {
 
 			template <typename T> void* AddPropertyTypeData(T* = nullptr) {
 				auto& map = getPropertySerializationMap();
+				if (map.find(Private::getName<T>()) != map.end()) {
+					return nullptr;
+				}
 				// Setup property serialization data for T
 				map.emplace(std::make_pair(Private::getName<T>(),
 				                           [] { return GetPropertyTypeSerializationData<T>(); }));
-				// Setup property serialization for OptionalProperty<T>
-				map.emplace(std::make_pair(Private::getName<OptionalProperty<T>>(), [] {
-					return GetPropertyTypeSerializationData<OptionalProperty<T>>();
-				}));
 
-				return nullptr;
+				return &map.at(Private::getName<T>());
 			}
 		}
 	}

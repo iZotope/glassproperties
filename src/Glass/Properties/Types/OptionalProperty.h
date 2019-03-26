@@ -55,7 +55,7 @@ namespace Glass {
 	}
 
 	template <typename T, typename = std::void_t<>>
-	struct OptionalProperty : Private::OptionalPropertyBase<T> {
+	struct OptionalProperty : PropertyType<OptionalProperty<T>>, Private::OptionalPropertyBase<T> {
 		using type = typename Private::OptionalPropertyBase<T>::type;
 		// using Private::OptionalPropertyBase<T>::name;
 		struct NoContextTag {};
@@ -100,7 +100,7 @@ namespace Glass {
 	struct OptionalProperty<
 	    T,
 	    std::void_t<typename std::enable_if<Private::has_type_scratch_type<T>::value, T>::type>>
-	    : Private::OptionalPropertyBase<T> {
+	    : PropertyType<OptionalProperty<T>>, Private::OptionalPropertyBase<T> {
 		using type = typename Private::OptionalPropertyBase<T>::type;
 		using scratch_type = std::optional<typename T::scratch_type>;
 		using Deserialized = ScratchSpaceAndValue<scratch_type, type>;

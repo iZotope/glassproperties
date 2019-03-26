@@ -16,15 +16,10 @@
 #pragma once
 
 #include "Glass/Properties/Private/getName.h"
+#include "Glass/Properties/Private/RegisterPropertyType.h"
+#include "Glass/Properties/Types/Meta.h"
 
 namespace Glass {
-	//! Properties that require scratch space should return the following type from
-	//! deserialize (see below)
-	template <typename Scratch, typename Type> struct ScratchSpaceAndValue {
-		std::optional<Scratch> scratchSpace;
-		Type value;
-	};
-
 	//! Use PropertyType to define a named property for serialization
 	//!
 	//! \param T type backing the property
@@ -106,17 +101,20 @@ namespace Glass {
 	//!   EnumParam* but does NOT support keypaths to EnumOrFloatParam.  To handle this, instead add
 	//!   a member type named `allowed_keypath_types`, which should be a std::tuple containing each
 	//!   allowed keypath type.
-	template <typename T, typename = std::void_t<>> struct PropertyType { using type = T; };
+	template <typename T, typename = void> struct PropertyType;
+
+	template <typename T>
+	struct PropertyType<T, std::enable_if_t<!IsBetterEnumProperty_v<T>>>
+	    : Private::RegisterPropertyType<T> {
+		using type = T;
+	};
 
 	//! When T is a BETTER_ENUM, name,serialize, and deserialize will be automatically generated
 	template <typename T>
-	struct PropertyType<
-	    T,
-	    std::void_t<decltype(T::_name(),
-	                         std::declval<T>()._to_string(),
-	                         T::_from_string_nocase_nothrow(std::declval<const char*>()))>> {
+	struct PropertyType<T, std::enable_if_t<IsBetterEnumProperty_v<T>>>
+	    : Private::RegisterPropertyType<PropertyType<T, void>> {
 		using type = T;
-		static constexpr auto name = T::_name();
+		static std::string name() { return std::string{"Enum: "} + T::_name(); }
 		static std::string serialize(const T& value) { return value._to_string(); }
 		static std::optional<type> deserialize(const std::string& serializedValue) {
 			const auto maybeValue = T::_from_string_nocase_nothrow(serializedValue.c_str());

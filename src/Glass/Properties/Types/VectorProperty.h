@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include "Glass/Properties/Types/PropertyType.h"
 #include "Glass/Properties/Private/getName.h"
 
 namespace Glass {
@@ -23,7 +24,7 @@ namespace Glass {
 		vector<std::string> parseSerializedVectorProperty(const std::string&);
 	}
 
-	template <typename T> struct VectorProperty : T {
+	template <typename T> struct VectorProperty : PropertyType<VectorProperty<T>>, T {
 		using type = vector<typename T::type>;
 		static std::string name() {
 			return std::string{"vector<"} + Private::getName<T>() + std::string{">"};

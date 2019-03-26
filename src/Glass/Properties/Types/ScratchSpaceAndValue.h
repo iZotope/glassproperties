@@ -15,14 +15,11 @@
 
 #pragma once
 
-#include "Glass/Properties/Private/GlobalPropertyData.h"
-
-// clang-format off
-
-#define GLASS_REGISTER_PROPERTY_TYPE(Type)                                                         \
-	namespace {                                                                                    \
-		[[maybe_unused]] const void* g_PropertyRegistrationData##Type =                            \
-		    reinterpret_cast<const void*>(&Type::staticRegistration);                              \
-	}
-
-// clang-format on
+namespace Glass {
+	//! Properties that require scratch space should return the following type from
+	//! deserialize (see Glass/Properties/Types/PropertyType.h)
+	template <typename Scratch, typename Type> struct ScratchSpaceAndValue {
+		std::optional<Scratch> scratchSpace;
+		Type value;
+	};
+}

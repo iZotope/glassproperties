@@ -16,8 +16,10 @@
 #include "iZBase/common/common.h"
 
 #include "Glass/Properties/Private/GlobalPropertyData.h"
+#include "Glass/Properties/Private/getName.h"
 
 #include "Glass/Properties/Types.h"
+#include "Glass/Properties/Types/FlexPropertyTypes.h"
 #include "iZBase/Util/PropertySerializer.h"
 
 IZ_PUSH_ALL_WARNINGS
@@ -44,11 +46,13 @@ TEST(GlobalPropertyTypeRegistration, EnumPropertyNameRegistration) {
 	    serializer,
 	    Glass::Private::getName<TestEnumType>(),
 	    Glass::Private::GlobalPropertyData::GetPropertyTypeSerializationData<TestEnumType>());
+	const auto designAidInfo =
+	    serializer.GetDesignAidInfoForType(Glass::Private::getName<TestEnumType>());
+	ASSERT_TRUE(serializer.IsTypeRegistered(Glass::Private::getName<TestEnumType>()));
+	ASSERT_TRUE(designAidInfo.type() == typeid(Util::PropertySerializer::DesignAidEnumInfo));
 
-	ASSERT_TRUE(serializer.IsTypeRegistered(TestEnumType::name));
-	ASSERT_TRUE(serializer.IsTypeNamedEnum(TestEnumType::name));
-
-	auto names = serializer.GetNamedEnumTypeNames(TestEnumType::name);
+	const auto& names =
+	    boost::get<Util::PropertySerializer::DesignAidEnumInfo>(designAidInfo).names;
 	ASSERT_EQ(TestEnum::_size_constant, names.size());
 	for (size_t i = 0; i < names.size(); ++i) {
 		ASSERT_EQ(TestEnum::_names()[i], names[i]);
