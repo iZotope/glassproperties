@@ -62,3 +62,11 @@
 		GLASS_PS(BOOST_PP_VARIADIC_TO_LIST(__VA_ARGS__))                                           \
 		using List = GLASS_PL(__VA_ARGS__);                                                        \
 	}
+
+//! When inheriting from multiple HasProperties types, it is necessary to using GetProperty and
+//! SetProperty to bring them into the derived classes overload set.  This macro takes a typename as
+//! a paremeter and expands to `using T::GetProperty; using T::SetProperty`.
+//!
+//! Accepts a list of base types to generate using statements for.  Each base type listed must be
+//! enclosed in parenthesis so that the macro can work with multi-parameter templated types.
+#define GLASS_USING_PROPERTIES(...) GLASS_USING_PROPERTIES_IMPL(__VA_ARGS__)

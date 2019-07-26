@@ -103,3 +103,13 @@
 #define GLASS_PL(...)                                                                              \
 	::Glass::PropertyList<BOOST_PP_SEQ_ENUM(                                                       \
 	    BOOST_PP_SEQ_TRANSFORM(GLASS_PL_OP, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)))>
+
+#define GLASS_U_P_X(...)                                                                           \
+	using __VA_ARGS__::GetProperty;                                                                \
+	using __VA_ARGS__::SetProperty;                                                                \
+	using __VA_ARGS__::didSet;
+
+#define CALL_GLASS_U_P_X(R, Data, Elem) GLASS_U_P_X Elem
+
+#define GLASS_USING_PROPERTIES_IMPL(...)                                                           \
+	BOOST_PP_LIST_FOR_EACH(CALL_GLASS_U_P_X, _, BOOST_PP_VARIADIC_TO_LIST(__VA_ARGS__))

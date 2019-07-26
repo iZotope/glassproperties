@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include "Glass/Properties/Private/getName.h"
 #include "iZBase/Util/PropertyHolder.h"
 
 namespace Glass {
@@ -26,6 +27,7 @@ namespace Glass {
 	//! HasPropertiesBase and must provide the type deriving from HasPropertiesBase as type argument
 	//! U.
 	class HasPropertiesBase {
+		friend class Flex;
 		template <typename Ps, typename U> friend class HasProperties;
 
 	public:

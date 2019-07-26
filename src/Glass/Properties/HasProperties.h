@@ -67,6 +67,8 @@ namespace Glass {
 			}
 		}
 
+		void didSet(void*) {}
+
 	private:
 		const Util::PropertyHolder& getPropertyHolder() const {
 			return static_cast<const U*>(this)->m_propertyHolder;
