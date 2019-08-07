@@ -76,6 +76,6 @@ namespace Glass {
 			return static_cast<U*>(this)->m_propertyHolder;
 		}
 
-		Trackable& getTrackable() { return static_cast<U*>(this)->m_trackable; }
+		Trackable& getTrackable() { return static_cast<U*>(this)->HasPropertiesBase::m_trackable; }
 	};
 }
