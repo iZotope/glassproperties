@@ -46,7 +46,10 @@ namespace Glass {
 				}
 				sVectorElements += serializedResult + ", ";
 			}
-			sVectorElements.erase(sVectorElements.find_last_of(","));
+			if (auto lastSeparator = sVectorElements.find_last_of(",");
+			    lastSeparator != std::string::npos) {
+				sVectorElements.erase(lastSeparator);
+			}
 			sVectorElements += ")";
 
 			return sVectorElements;
