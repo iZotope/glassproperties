@@ -58,6 +58,7 @@ namespace Glass {
 	struct OptionalProperty : PropertyType<OptionalProperty<T>>, Private::OptionalPropertyBase<T> {
 		using type = typename Private::OptionalPropertyBase<T>::type;
 		// using Private::OptionalPropertyBase<T>::name;
+		using Private::RegisterPropertyType<OptionalProperty<T>>::staticRegistration;
 		struct NoContextTag {};
 
 		static std::string serialize(const type& value) {
@@ -105,6 +106,7 @@ namespace Glass {
 		using scratch_type = std::optional<typename T::scratch_type>;
 		using Deserialized = ScratchSpaceAndValue<scratch_type, type>;
 		// using Private::OptionalPropertyBase<T>::name;
+		using Private::RegisterPropertyType<OptionalProperty<T>>::staticRegistration;
 		struct NoContextTag {};
 
 		static std::optional<std::string> serialize(const type& value, const scratch_type* scratch) {
