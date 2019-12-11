@@ -28,7 +28,7 @@ namespace Glass::Private {
 	    T,
 	    std::void_t<decltype(getName<T>(),
 	                         &T::serialize,
-	                         &T::deserialize,
+	                         T::deserialize(""),
 	                         GlobalPropertyData::GetPropertyTypeSerializationData<T>())>>
 	    : std::true_type {};
 
