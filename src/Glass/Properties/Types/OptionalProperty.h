@@ -86,7 +86,7 @@ namespace Glass {
 		static std::optional<type>
 		deserialize(const std::string& serializedValue,
 		            std::enable_if_t<Private::has_type_context_type<U>::value,
-		                             const typename U::context_type*> context) {
+		                             const typename U::context_type*> context = nullptr) {
 			if (serializedValue == std::string{Private::NulloptString}) {
 				return type{};
 			}
@@ -138,7 +138,7 @@ namespace Glass {
 		static std::optional<Deserialized>
 		deserialize(const std::string& serializedValue,
 		            std::enable_if_t<Private::has_type_context_type<U>::value,
-		                             const typename U::context_type*> context) {
+		                             const typename U::context_type*> context = nullptr) {
 			if (serializedValue == std::string{Private::NulloptString}) {
 				return Deserialized{};
 			} else if (auto deserialized = T::deserialize(serializedValue, context)) {

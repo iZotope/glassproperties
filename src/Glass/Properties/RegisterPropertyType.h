@@ -16,6 +16,7 @@
 #pragma once
 
 #include "Glass/Properties/Private/GlobalPropertyData.h"
+#include "Glass/Properties/Types/OptionalProperty.h"
 
 // clang-format off
 
@@ -23,6 +24,9 @@
 	namespace {                                                                                    \
 		[[maybe_unused]] const void* g_PropertyRegistrationData##Type =                            \
 		    reinterpret_cast<const void*>(&Type::staticRegistration);                              \
+		using PropertyRegistrationType_Optional##Type = Glass::OptionalProperty<Type>;             \
+		[[maybe_unused]] const void* g_PropertyRegistrationDataOptional##Type =                    \
+		    reinterpret_cast<const void*>(&PropertyRegistrationType_Optional##Type::staticRegistration); \
 	}
 
 // clang-format on
