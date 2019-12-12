@@ -38,9 +38,6 @@ namespace Glass::Private {
 				if constexpr (ShouldRegisterPropertyType<T>::value) {
 					Glass::Private::GlobalPropertyData::AddPropertyTypeData<T>();
 				}
-				else {
-					static_assert(false);
-				}
 			}
 		};
 

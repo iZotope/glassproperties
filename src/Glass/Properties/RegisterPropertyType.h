@@ -20,13 +20,13 @@
 
 // clang-format off
 
-#define GLASS_REGISTER_PROPERTY_TYPE(Type)                                                         \
-	namespace {                                                                                    \
-		[[maybe_unused]] const void* g_PropertyRegistrationData##Type =                            \
-		    reinterpret_cast<const void*>(&Type::staticRegistration);                              \
-		using PropertyRegistrationType_Optional##Type = Glass::OptionalProperty<Type>;             \
-		[[maybe_unused]] const void* g_PropertyRegistrationDataOptional##Type =                    \
-		    reinterpret_cast<const void*>(&PropertyRegistrationType_Optional##Type::staticRegistration); \
+#define GLASS_REGISTER_PROPERTY_TYPE(Type)                                                                  \
+	namespace {                                                                                             \
+		[[maybe_unused]] const void* g_PropertyRegistrationData##Type =                                     \
+		    reinterpret_cast<const void*>(&Type::staticRegistration);                                       \
+		using PropertyRegistrationType_Optional##Type = Glass::OptionalProperty<Type>;                      \
+		[[maybe_unused]] const void* g_PropertyRegistrationDataOptional##Type =                             \
+		    reinterpret_cast<const void*>(&PropertyRegistrationType_Optional##Type::staticRegistration);    \
 	}
 
 // clang-format on
