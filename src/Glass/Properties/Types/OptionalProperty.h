@@ -61,9 +61,9 @@ namespace Glass {
 		using Private::RegisterPropertyType<OptionalProperty<T>>::staticRegistration;
 		struct NoContextTag {};
 
-		static std::string serialize(const type& value) {
+		static auto serialize(const type& value) -> decltype(T::serialize(*value)) {
 			if (!value) {
-				return Private::NulloptString;
+				return std::string{Private::NulloptString};
 			}
 			return T::serialize(*value);
 		}
@@ -109,9 +109,10 @@ namespace Glass {
 		using Private::RegisterPropertyType<OptionalProperty<T>>::staticRegistration;
 		struct NoContextTag {};
 
-		static std::optional<std::string> serialize(const type& value, const scratch_type* scratch) {
+		static auto serialize(const type& value, const scratch_type* scratch)
+		    -> decltype(T::serialize(*value, &**scratch)) {
 			if (!value) {
-				return std::optional<std::string>{Private::NulloptString};
+				return std::string{Private::NulloptString};
 			}
 			if (scratch) {
 				ZASSERT(*scratch);
