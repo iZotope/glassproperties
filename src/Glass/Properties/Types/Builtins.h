@@ -50,7 +50,7 @@ namespace Glass {
 
 	struct StringPropertyType : PropertyType<StringPropertyType> {
 		using type = std::string;
-		static constexpr auto name = "String";
+		static constexpr auto name = "std::string";
 		static std::string serialize(std::string value);
 		static std::optional<std::string> deserialize(const std::string& serializedValue);
 	};

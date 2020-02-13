@@ -111,9 +111,6 @@ std::string StringPropertyType::serialize(std::string value) {
 	return value;
 }
 optional<std::string> StringPropertyType::deserialize(const std::string& value) {
-	if (value.empty()) {
-		return std::nullopt;
-	}
 	return value;
 }
 GLASS_REGISTER_PROPERTY_TYPE(StringPropertyType)
