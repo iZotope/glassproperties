@@ -115,5 +115,18 @@ namespace Glass {
 		                 typename CartesianProduct<PropertyList, PropertyList<int, float>,
 		                                           PropertyList<float, int>>::type>::value,
 		    "Cartesian test");
+
+		template <template <typename> typename F, typename T> struct MapPropertyList {};
+
+		//! Applies a template to all properties in a property list.
+		template <template <typename> typename F, typename... Ts>
+		struct MapPropertyList<F, Glass::PropertyList<Ts...>> {
+			using type = Glass::PropertyList<F<Ts>...>;
+		};
+
+		static_assert(
+		    std::is_same_v<typename MapPropertyList<std::optional, PropertyList<int, float>>::type,
+		                   PropertyList<std::optional<int>, std::optional<float>>>,
+		    "MapPropertyList Test");
 	}
 }
