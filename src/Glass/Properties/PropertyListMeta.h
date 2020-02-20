@@ -124,9 +124,9 @@ namespace Glass {
 			using type = Glass::PropertyList<F<Ts>...>;
 		};
 
-		static_assert(
-		    std::is_same_v<typename MapPropertyList<std::optional, PropertyList<int, float>>::type,
-		                   PropertyList<std::optional<int>, std::optional<float>>>,
-		    "MapPropertyList Test");
+		static_assert(std::is_same::value<
+		                  typename MapPropertyList<std::optional, PropertyList<int, float>>::type,
+		                  PropertyList<std::optional<int>, std::optional<float>>>,
+		              "MapPropertyList Test");
 	}
 }
