@@ -128,5 +128,15 @@ namespace Glass {
 		    std::is_same<typename MapPropertyList<std::optional, PropertyList<int, float>>::type,
 		                 PropertyList<std::optional<int>, std::optional<float>>>::value,
 		    "MapPropertyList Test");
+
+		//! Applies a value to a list of properties
+		template <typename View, typename Value>
+		void SetAllProps(View&, const Value&, const Glass::PropertyList<>&) {}
+
+		template <typename View, typename Value, typename Prop, typename... Props>
+		void SetAllProps(View& view, const Value& value, const Glass::PropertyList<Prop, Props...>&) {
+			view.template SetProperty<Prop>(value);
+			SetAllProps(view, value, Glass::PropertyList<Props...>{});
+		}
 	}
 }

@@ -18,6 +18,7 @@
                    '../src/Glass/Properties/PropertyDefinition.h',
                    '../src/Glass/Properties/PropertyList.h',
                    '../src/Glass/Properties/PropertyListMeta.h',
+                   '../src/Glass/Properties/PropertyListMeta_tests.cpp',
                    '../src/Glass/Properties/PropertyList_tests.cpp',
                    '../src/Glass/Properties/RegisterPropertyType.h',
                    '../src/Glass/Properties/Types.h',
