@@ -134,7 +134,8 @@ namespace Glass {
 		void SetAllProps(View&, const Value&, const Glass::PropertyList<>&) {}
 
 		template <typename View, typename Value, typename Prop, typename... Props>
-		void SetAllProps(View& view, const Value& value, const Glass::PropertyList<Prop, Props...>&) {
+		void
+		SetAllProps(View& view, const Value& value, const Glass::PropertyList<Prop, Props...>&) {
 			view.template SetProperty<Prop>(value);
 			SetAllProps(view, value, Glass::PropertyList<Props...>{});
 		}
