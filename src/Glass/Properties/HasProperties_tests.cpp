@@ -19,6 +19,7 @@
 #include "Glass/Properties/HasProperties.h"
 #include "Glass/Properties/HasPropertiesBase.h"
 #include "Glass/Properties/Types.h"
+#include "iZBase/Util/PropertySerializer.h"
 
 IZ_PUSH_ALL_WARNINGS
 #include "gtest/gtest.h"
@@ -83,6 +84,9 @@ namespace {
 		Glass::optional<int32_t> latestIntValue;
 		Glass::optional<Glass::Color> latestBackgroundColorValue;
 	};
+
+	String serializeInt(int nValue) { return String("%1").Arg(nValue); }
+	checked_int deserializeInt(const String& strValue) { return strValue.ToInt(); }
 }
 
 static_assert(!Glass::Meta::HasDidSet_v<TestClass, FloatValue>,
@@ -94,7 +98,16 @@ static_assert(std::is_assignable<Glass::PropertyDefinitionBase, IntValue>::value
 
 class HasPropertiesTests : public ::testing::Test {
 public:
+	void SetUp() override {
+		stylesheet = make_shared<Util::StyleSheet>(&serializer);
+		serializer.RegisterType<int>("Int", &serializeInt, &deserializeInt);
+		// serializer.RegisterType<String>("String", &serializeString, &deserializeString);
+	}
+
 	TestClass p;
+	Util::PropertySerializer serializer;
+	shared_ptr<Util::StyleSheet> stylesheet;
+	std::string className = "Class";
 };
 
 TEST_F(HasPropertiesTests, DefaultValue) {
@@ -122,4 +135,12 @@ TEST_F(HasPropertiesTests, Mixin) {
 	p.SetProperty<IntValue2>(-2);
 	ASSERT_EQ(EXPECTED_INT, p.GetProperty<IntValue>());
 	ASSERT_EQ(-2, p.GetProperty<IntValue2>());
+}
+
+TEST_F(HasPropertiesTests, BasicStylesheet) {
+	stylesheet->AddProperty(className, "IntValue", "Int", "5");
+
+	p.SetStyleSheet(stylesheet);
+	p.AddClassName(className);
+	EXPECT_EQ(5, p.GetProperty<IntValue>());
 }
