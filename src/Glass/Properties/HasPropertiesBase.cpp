@@ -33,15 +33,15 @@ HasPropertiesBase::HasPropertiesBase(Util::PropertyHolder& propertyHolder)
 
 HasPropertiesBase::~HasPropertiesBase() = default;
 
-void HasPropertiesBase::SetStyleSheet(shared_ptr<Util::StyleSheet> styleSheet) {
+void HasPropertiesBase::SetStyleSheetBase(shared_ptr<Util::StyleSheet> styleSheet) {
 	m_propertyHolder.SetStyleSheet(styleSheet);
 }
 
-void HasPropertiesBase::AddClassName(const std::string& className) {
+void HasPropertiesBase::AddClassNameBase(const std::string& className) {
 	m_propertyHolder.AddClassName(className);
 }
 
-void HasPropertiesBase::SetClassNames(const vector<std::string>& classNames) {
+void HasPropertiesBase::SetClassNamesBase(const vector<std::string>& classNames) {
 	vector<String> names =
 	    classNames | ranges::view::transform([](const std::string& s) { return s; });
 	m_propertyHolder.SetClassNames(names);
