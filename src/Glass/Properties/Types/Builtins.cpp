@@ -77,9 +77,9 @@ GLASS_REGISTER_PROPERTY_TYPE(FloatPropertyType)
 std::string Float4DimPropertyType::serialize(const type& value) {
 	return boost::apply_visitor(
 	    ::Util::overload<std::string>(
-	        [](float rad) { return fmt::format("{}", rad); },
+	        [](float rad) { return fmt::format("{:g}", rad); },
 	        [](std::array<float, 4> rad) {
-		        return fmt::format("{} {} {} {}", rad[0], rad[1], rad[2], rad[3]);
+		        return fmt::format("{:g} {:g} {:g} {:g}", rad[0], rad[1], rad[2], rad[3]);
 	        }),
 	    value);
 }
