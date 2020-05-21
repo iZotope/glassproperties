@@ -37,6 +37,7 @@ namespace Glass {
 		template <typename V> friend class Burlap::View;
 		template <typename Ps, typename U> friend class HasProperties;
 		friend class ViewDesignInterface;
+		friend class HasToolTip;
 
 	public:
 		virtual ~HasPropertiesBase() = 0;
