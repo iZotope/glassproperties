@@ -26,6 +26,8 @@ IZ_PUSH_ALL_WARNINGS
 #include "gtest/gtest.h"
 IZ_POP_ALL_WARNINGS
 
+using Controller::KVCAny;
+
 namespace {
 	BETTER_ENUM(TestEnum, int32_t, ThingOne, ThingTwo, Cat);
 	using TestEnumType = Glass::PropertyType<TestEnum>;
@@ -176,8 +178,8 @@ TEST(GlobalPropertyTypeRegistration, SupportsIsKeypath) {
 	    serializer.GetDesignAidInfoForType(Glass::Private::getName<TestKeypathPropertyType>()));
 	int32_t test = 32;
 	ASSERT_TRUE(designAidInfo);
-	ASSERT_TRUE(designAidInfo->canSetKVCValue(&test));
-	ASSERT_FALSE(designAidInfo->canSetKVCValue("This is not a pipe"));
+	ASSERT_TRUE(designAidInfo->canSetKVCValue(KVCAny{&test}));
+	ASSERT_FALSE(designAidInfo->canSetKVCValue(KVCAny{"This is not a pipe"}));
 }
 
 struct TestMultipleKeypathsPropertyType : Glass::PropertyType<int64_t> {
@@ -202,8 +204,8 @@ TEST(GlobalPropertyTypeRegistration, SupportsMultipleKeypathTypes) {
 	        Glass::Private::getName<TestMultipleKeypathsPropertyType>()));
 	ASSERT_TRUE(designAidInfo);
 	int32_t test1;
-	ASSERT_TRUE(designAidInfo->canSetKVCValue(&test1));
+	ASSERT_TRUE(designAidInfo->canSetKVCValue(KVCAny{&test1}));
 	float test2;
-	ASSERT_TRUE(designAidInfo->canSetKVCValue(&test2));
-	ASSERT_FALSE(designAidInfo->canSetKVCValue("I am not a number!"));
+	ASSERT_TRUE(designAidInfo->canSetKVCValue(KVCAny{&test2}));
+	ASSERT_FALSE(designAidInfo->canSetKVCValue(KVCAny{"I am not a number!"}));
 }

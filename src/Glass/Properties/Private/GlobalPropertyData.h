@@ -106,7 +106,7 @@ namespace Glass {
 			inline bool isAnyOneOf(const boost::any&, std::tuple<>* = nullptr) { return false; }
 
 			template <typename T, typename... Ts>
-			bool isAnyOneOf(const boost::any& value, std::tuple<T, Ts...>* = nullptr) {
+			bool isAnyOneOf(const ::Controller::KVCAny& value, std::tuple<T, Ts...>* = nullptr) {
 				if (::Controller::KeyValueCoding::CastFromAny<T>(value)) {
 					return true;
 				}
@@ -116,7 +116,7 @@ namespace Glass {
 			template <typename T> struct KeyPathInfo<T, false, true> {
 				static void addToSerializationData(PropertyTypeSerializationData& data) {
 					data.designAidInfo = Util::PropertySerializer::DesignAidKVCPathInfo{
-					    [](const boost::any& maybeValueReporter) -> bool {
+					    [](const ::Controller::KVCAny& maybeValueReporter) -> bool {
 						    return isAnyOneOf(
 						        maybeValueReporter,
 						        static_cast<typename std::add_pointer<
