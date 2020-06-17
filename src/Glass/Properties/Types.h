@@ -17,6 +17,5 @@
 
 #include "Glass/Properties/Types/Builtins.h"
 #include "Glass/Properties/Types/OptionalProperty.h"
-#include "Glass/Properties/Types/OrientationPropertyType.h"
 #include "Glass/Properties/Types/PropertyType.h"
 #include "Glass/Properties/Types/VectorProperty.h"
