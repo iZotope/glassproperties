@@ -145,10 +145,10 @@ TEST_F(HasPropertiesTests, BasicStylesheet) {
     EXPECT_EQ(5, p.GetProperty<IntValue>());
 }
 
-/*TEST_F(HasPropertiesTests, DoesOrderMatter) {
+TEST_F(HasPropertiesTests, DoesOrderMatter) {
     stylesheet->AddProperty(className, "IntValue", "Int", "5");
 
     p.AddClassName(className);
     p.SetStyleSheet(stylesheet);
     EXPECT_EQ(5, p.GetProperty<IntValue>());
-}*/
+}
