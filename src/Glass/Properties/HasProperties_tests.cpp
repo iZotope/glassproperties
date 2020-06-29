@@ -141,14 +141,14 @@ TEST_F(HasPropertiesTests, BasicStylesheet) {
     stylesheet->AddProperty(className, "IntValue", "Int", "5");
 
     p.SetStyleSheet(stylesheet);
-    p.AddClassName(className);
+	p.SetClassNameProperty({className});
     EXPECT_EQ(5, p.GetProperty<IntValue>());
 }
 
 TEST_F(HasPropertiesTests, DoesOrderMatter) {
     stylesheet->AddProperty(className, "IntValue", "Int", "5");
 
-    p.AddClassName(className);
+	p.SetClassNameProperty({className});
     p.SetStyleSheet(stylesheet);
     EXPECT_EQ(5, p.GetProperty<IntValue>());
 }
