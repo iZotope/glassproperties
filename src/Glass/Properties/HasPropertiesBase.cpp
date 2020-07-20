@@ -18,7 +18,7 @@
 #include "Glass/Properties/HasPropertiesBase.h"
 
 IZ_PUSH_ALL_WARNINGS
-#include "range/v3/view/transform.hpp"
+#include "range/v3/to_container.hpp"
 IZ_POP_ALL_WARNINGS
 
 using namespace Glass;
@@ -38,8 +38,7 @@ void HasPropertiesBase::SetStyleSheet(shared_ptr<Util::StyleSheet> styleSheet) {
 }
 
 void HasPropertiesBase::SetClassNameProperty(const vector<std::string>& classNames) {
-	vector<String> names =
-	    classNames | ranges::view::transform([](const std::string& s) { return s; });
+	vector<String> names = classNames | ranges::v3::to_<vector<String>>();
 	m_propertyHolder.SetProperty(Util::PropertyHolder::ClassList::PROPERTY,
 	                             Util::PropertyHolder::ClassList{names});
 }
