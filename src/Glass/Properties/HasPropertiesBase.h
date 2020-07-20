@@ -43,7 +43,7 @@ namespace Glass {
 		virtual ~HasPropertiesBase() = 0;
 
 		void SetStyleSheet(shared_ptr<Util::StyleSheet> styleSheet);
-		void SetClassNameProperty(const vector<std::string>& classNames);
+		void SetClassNames(const vector<std::string>& classNames);
 
 	protected:
 		HasPropertiesBase();

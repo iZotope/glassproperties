@@ -37,7 +37,7 @@ void HasPropertiesBase::SetStyleSheet(shared_ptr<Util::StyleSheet> styleSheet) {
 	m_propertyHolder.SetStyleSheet(styleSheet);
 }
 
-void HasPropertiesBase::SetClassNameProperty(const vector<std::string>& classNames) {
+void HasPropertiesBase::SetClassNames(const vector<std::string>& classNames) {
 	vector<String> names = classNames | ranges::v3::to_<vector<String>>();
 	m_propertyHolder.SetProperty(Util::PropertyHolder::ClassList::PROPERTY,
 	                             Util::PropertyHolder::ClassList{names});
