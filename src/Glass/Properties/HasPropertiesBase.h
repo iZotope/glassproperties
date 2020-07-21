@@ -43,6 +43,9 @@ namespace Glass {
 		virtual ~HasPropertiesBase() = 0;
 
 		void SetStyleSheet(shared_ptr<Util::StyleSheet> styleSheet);
+		//! Set classes that this object will use to pull properties from a given stylesheet. If
+		//! there are conflicting properties in the stylesheet, later classes in the list will have
+		//! precedence.
 		void SetClassNames(const vector<std::string>& classNames);
 
 	protected:

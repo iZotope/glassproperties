@@ -163,3 +163,16 @@ TEST_F(HasPropertiesTests, MultipleClasses) {
 	EXPECT_EQ(5, p.GetProperty<IntValue>());
 	EXPECT_EQ(50, p.GetProperty<IntValue2>());
 }
+
+TEST_F(HasPropertiesTests, ClassPrecedence) {
+	stylesheet->AddProperty(className, "IntValue", "Int", "5");
+	stylesheet->AddProperty(anotherClassName, "IntValue", "Int", "50");
+
+	p.SetClassNames({className, anotherClassName});
+	p.SetStyleSheet(stylesheet);
+	EXPECT_EQ(50, p.GetProperty<IntValue>());
+
+	p.SetClassNames({anotherClassName, className});
+	p.SetStyleSheet(stylesheet);
+	EXPECT_EQ(5, p.GetProperty<IntValue>());
+}
