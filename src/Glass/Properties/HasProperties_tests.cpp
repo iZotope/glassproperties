@@ -101,7 +101,6 @@ public:
 	void SetUp() override {
 		stylesheet = make_shared<Util::StyleSheet>(&serializer);
 		serializer.RegisterType<int>("Int", &serializeInt, &deserializeInt);
-		// serializer.RegisterType<String>("String", &serializeString, &deserializeString);
 	}
 
 	TestClass p;
