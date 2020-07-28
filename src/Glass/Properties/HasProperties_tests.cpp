@@ -157,10 +157,12 @@ TEST_F(HasPropertiesTests, MultipleClasses) {
 	stylesheet->AddProperty(className, "IntValue", "Int", "5");
 	stylesheet->AddProperty(anotherClassName, "IntValue2", "Int", "50");
 
-	p.SetClassNames({className, anotherClassName});
+	vector<std::string> classes{className, anotherClassName};
+	p.SetClassNames(classes);
 	p.SetStyleSheet(stylesheet);
 	EXPECT_EQ(5, p.GetProperty<IntValue>());
 	EXPECT_EQ(50, p.GetProperty<IntValue2>());
+	EXPECT_EQ(classes, p.GetClassNames());
 }
 
 TEST_F(HasPropertiesTests, ClassPrecedence) {

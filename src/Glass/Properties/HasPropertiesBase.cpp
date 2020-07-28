@@ -18,6 +18,7 @@
 #include "Glass/Properties/HasPropertiesBase.h"
 
 IZ_PUSH_ALL_WARNINGS
+#include "range/v3/view/transform.hpp"
 #include "range/v3/to_container.hpp"
 IZ_POP_ALL_WARNINGS
 
@@ -41,4 +42,17 @@ void HasPropertiesBase::SetClassNames(const vector<std::string>& classNames) {
 	vector<String> names = classNames | ranges::v3::to_<vector<String>>();
 	m_propertyHolder.SetProperty(Util::PropertyHolder::ClassList::PROPERTY,
 	                             Util::PropertyHolder::ClassList{names});
+}
+
+vector<std::string> HasPropertiesBase::GetClassNames() {
+	auto classList = m_propertyHolder.GetProperty<Util::PropertyHolder::ClassList>(
+	    Util::PropertyHolder::ClassList::PROPERTY);
+
+	if (classList.IsValid()) {
+		auto stringList = static_cast<vector<String>>(classList.get());
+		return stringList |
+		       ranges::view::transform([](const String& s) { return s.ToStandardString(); });
+	} else {
+		return vector<std::string>();
+	}
 }

@@ -47,6 +47,7 @@ namespace Glass {
 		//! there are conflicting properties in the stylesheet, later classes in the list will have
 		//! precedence.
 		void SetClassNames(const vector<std::string>& classNames);
+		vector<std::string> GetClassNames();
 
 	protected:
 		HasPropertiesBase();
