@@ -97,7 +97,7 @@ optional<Float4Dim> Float4DimPropertyType::deserialize(const std::string& serial
 		std::array<float, 4> arrayValues;
 		int index = 0;
 		for (auto result : float4DimResults) {
-			arrayValues[index] = String{result}.ToFloat();
+			arrayValues[index] = String{result}.ToFloat().cast();
 			index++;
 		}
 		return Float4Dim{arrayValues};
