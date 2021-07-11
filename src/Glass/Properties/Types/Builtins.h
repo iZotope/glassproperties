@@ -34,6 +34,7 @@ namespace Glass {
 		static std::optional<float> deserialize(const std::string& serializedValue);
 	};
 
+        using Float4Dim = boost::variant<float, std::array<float, 4>>;
 	struct Float4DimPropertyType : PropertyType<Float4DimPropertyType> {
 		using type = Float4Dim;
 		static constexpr auto name = "Float4Dim";
@@ -53,26 +54,5 @@ namespace Glass {
 		static constexpr auto name = "std::string";
 		static std::string serialize(std::string value);
 		static std::optional<std::string> deserialize(const std::string& serializedValue);
-	};
-
-	struct PointPropertyType : PropertyType<PointPropertyType> {
-		using type = Point;
-		static constexpr auto name = "Glass::Point";
-		static std::string serialize(Point value);
-		static std::optional<Point> deserialize(const std::string& serializedValue);
-	};
-
-	struct SizePropertyType : PropertyType<SizePropertyType> {
-		using type = Size;
-		static constexpr auto name = "Glass::Size";
-		static std::string serialize(Size value);
-		static std::optional<Size> deserialize(const std::string& serializedValue);
-	};
-
-	struct RectPropertyType : PropertyType<RectPropertyType> {
-		using type = Rect;
-		static constexpr auto name = "Glass::Rect";
-		static std::string serialize(Rect value);
-		static std::optional<Rect> deserialize(const std::string& serializedValue);
 	};
 }
