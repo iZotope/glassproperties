@@ -21,7 +21,6 @@
                    '../src/Glass/Properties/PropertyListMeta_tests.cpp',
                    '../src/Glass/Properties/PropertyList_tests.cpp',
                    '../src/Glass/Properties/RegisterPropertyType.h',
-                   '../src/Glass/Properties/Types.h',
                    '../src/Glass/Properties/Types/Builtins.cpp',
                    '../src/Glass/Properties/Types/Builtins.h',
                    '../src/Glass/Properties/Types/Builtins_tests.cpp',
