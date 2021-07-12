@@ -15,10 +15,9 @@
 
 #include "iZBase/common/common.h"
 
-#include "Glass/Color.h"
+#include "Glass/Properties/Types/Builtins.h"
 #include "Glass/Properties/HasProperties.h"
 #include "Glass/Properties/HasPropertiesBase.h"
-#include "Glass/Properties/Types.h"
 #include "iZBase/Util/PropertySerializer.h"
 
 IZ_PUSH_ALL_WARNINGS
@@ -28,7 +27,19 @@ IZ_POP_ALL_WARNINGS
 namespace {
 	const int32_t EXPECTED_INT = 65;
 	constexpr float EXPECTED_FLOAT = 42.f;
-	constexpr Glass::Color EXPECTED_COLOR{1.f, .8f, .2f};
+	struct Color {
+		float r;
+		float g;
+		float b;
+	};
+	bool operator==(const Color& lhs, const Color& rhs) {
+		return lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b;
+	}
+
+	struct ColorPropertyType : Glass::PropertyType<Color> {
+		static constexpr auto name = "Color";
+	};
+	constexpr Color EXPECTED_COLOR{1.f, .8f, .2f};
 }
 
 namespace {
@@ -41,9 +52,9 @@ namespace {
 		static constexpr Glass::IntPropertyType::type defaultValue = EXPECTED_INT;
 	};
 
-	struct BackgroundColor : Glass::PropertyDefinition<BackgroundColor, Glass::ColorPropertyType> {
+	struct BackgroundColor : Glass::PropertyDefinition<BackgroundColor, ColorPropertyType> {
 		static constexpr const char* const name = "Background Color";
-		static constexpr Glass::ColorPropertyType::type defaultValue = EXPECTED_COLOR;
+		static constexpr ColorPropertyType::type defaultValue = EXPECTED_COLOR;
 	};
 
 
@@ -81,8 +92,8 @@ namespace {
 
 		void didSet(IntValue) { latestIntValue = GetProperty<IntValue>(); }
 
-		Glass::optional<int32_t> latestIntValue;
-		Glass::optional<Glass::Color> latestBackgroundColorValue;
+		std::optional<int32_t> latestIntValue;
+		std::optional<Color> latestBackgroundColorValue;
 	};
 
 	String serializeInt(int nValue) { return String("%1").Arg(nValue); }

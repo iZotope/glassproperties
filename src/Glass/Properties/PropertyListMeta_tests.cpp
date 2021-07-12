@@ -14,10 +14,10 @@
 
 #include "iZBase/common/common.h"
 
+#include "Glass/Properties/Types/Builtins.h"
 #include "Glass/Properties/HasProperties.h"
 #include "Glass/Properties/Macros.h"
 #include "Glass/Properties/PropertyListMeta.h"
-#include "Glass/Properties/Types.h"
 
 IZ_PUSH_ALL_WARNINGS
 #include "gtest/gtest.h"

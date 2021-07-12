@@ -15,11 +15,11 @@
 
 #include "iZBase/common/common.h"
 
+#include "iZBase/Util/VariantUtils.h"
+#include "Glass/Properties/Types/Builtins.h"
 #include "Glass/Properties/Private/GlobalPropertyData.h"
 #include "Glass/Properties/Private/getName.h"
-
-#include "Glass/Properties/Types.h"
-#include "Glass/Properties/Types/FlexPropertyTypes.h"
+#include "Glass/Properties/Types/Builtins.h"
 #include "iZBase/Util/PropertySerializer.h"
 
 IZ_PUSH_ALL_WARNINGS
@@ -64,8 +64,8 @@ TEST(GlobalPropertyTypeRegistration, EnumPropertyNameRegistration) {
 struct TestScratchPropertyType : Glass::PropertyType<int32_t> {
 	static constexpr auto name = "TestScratch";
 	using scratch_type = std::string;
-	static Glass::optional<std::string> serialize(int32_t, const std::string* scratch) {
-		return scratch ? Glass::optional<std::string>{*scratch} : Glass::nullopt;
+	static std::optional<std::string> serialize(int32_t, const std::string* scratch) {
+		return scratch ? std::optional<std::string>{*scratch} : std::nullopt;
 	}
 	static Glass::ScratchSpaceAndValue<scratch_type, type> deserialize(const std::string&) {
 		return Glass::ScratchSpaceAndValue<scratch_type, type>{std::string{"hello"}, 7};
@@ -85,10 +85,10 @@ TEST(GlobalPropertyTypeRegistration, SupportsScratchSpace) {
 struct TestContextPropertyType : Glass::PropertyType<int32_t> {
 	static constexpr auto name = "TestContext";
 	using context_type = std::string;
-	static Glass::optional<std::string> serialize(int32_t) { return Glass::nullopt; }
-	static Glass::optional<int32_t> deserialize(const std::string&, const std::string* context) {
+	static std::optional<std::string> serialize(int32_t) { return std::nullopt; }
+	static std::optional<int32_t> deserialize(const std::string&, const std::string* context) {
 		if (!context) {
-			return Glass::nullopt;
+			return std::nullopt;
 		}
 		if (*context != "Cool Context") {
 			return 17;
@@ -122,13 +122,13 @@ struct TestScratchAndContextPropertyType : Glass::PropertyType<int32_t> {
 	static constexpr auto name = "TestScratchAndContext";
 	using scratch_type = std::string;
 	using context_type = std::string;
-	static Glass::optional<std::string> serialize(int32_t, const std::string* scratch) {
-		return scratch ? Glass::optional<std::string>{*scratch} : Glass::nullopt;
+	static std::optional<std::string> serialize(int32_t, const std::string* scratch) {
+		return scratch ? std::optional<std::string>{*scratch} : std::nullopt;
 	}
-	static Glass::optional<Glass::ScratchSpaceAndValue<scratch_type, type>>
+	static std::optional<Glass::ScratchSpaceAndValue<scratch_type, type>>
 	deserialize(const std::string&, const std::string* context) {
 		if (!context) {
-			return Glass::nullopt;
+			return std::nullopt;
 		}
 		return Glass::ScratchSpaceAndValue<scratch_type, type>{*context, 7};
 	}
@@ -159,8 +159,8 @@ TEST(GlobalPropertyTypeRegistration, SupportsScratchSpaceWithContext) {
 
 struct TestKeypathPropertyType : Glass::PropertyType<int32_t*> {
 	static constexpr auto name = "TestContext";
-	static Glass::optional<std::string> serialize(int32_t*) { return Glass::nullopt; }
-	static Glass::optional<int32_t*> deserialize(const std::string&) { return Glass::nullopt; }
+	static std::optional<std::string> serialize(int32_t*) { return std::nullopt; }
+	static std::optional<int32_t*> deserialize(const std::string&) { return std::nullopt; }
 	static const bool is_keypath = true;
 };
 
@@ -184,8 +184,8 @@ TEST(GlobalPropertyTypeRegistration, SupportsIsKeypath) {
 
 struct TestMultipleKeypathsPropertyType : Glass::PropertyType<int64_t> {
 	static constexpr auto name = "TestContext";
-	static Glass::optional<std::string> serialize(int64_t) { return Glass::nullopt; }
-	static Glass::optional<int64_t> deserialize(const std::string&) { return Glass::nullopt; }
+	static std::optional<std::string> serialize(int64_t) { return std::nullopt; }
+	static std::optional<int64_t> deserialize(const std::string&) { return std::nullopt; }
 	using allowed_keypath_types = std::tuple<int32_t*, float*>;
 };
 

@@ -19,7 +19,7 @@ IZ_PUSH_ALL_WARNINGS
 #include "gtest/gtest.h"
 IZ_POP_ALL_WARNINGS
 
-#include "Glass/Properties/Types.h"
+#include "Glass/Properties/Types/Builtins.h"
 #include "Glass/Properties/Types/OptionalProperty.h"
 
 using namespace Glass;

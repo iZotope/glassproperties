@@ -15,9 +15,9 @@
 
 #include "Glass/Properties/PropertyList.h"
 
+#include "Glass/Properties/Types/Builtins.h"
 #include "Glass/Properties/HasProperties.h"
 #include "Glass/Properties/PropertyDefinition.h"
-#include "Glass/Properties/Types.h"
 
 using namespace Glass;
 
