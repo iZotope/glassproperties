@@ -1,0 +1,148 @@
+iZmoc.make
+Plugin_iZmoc.make
+Project.pro
+
+# Xcode
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+# Visual Studio
+**/build/.vs/
+
+# Visual Studio Code
+**/.vscode/
+
+# build dirs for GYP (Mac)
+**/build/build/*
+**/build/*.xcodeproj
+
+# build dirs for checked-in project files (Mac)
+**/build/mac_xcode/build/*
+**/build/mac_xcode/DerivedData/*
+**/build/DerivedData/*
+
+# build dirs for GYP (Windows)
+**/build/*.vcxproj
+**/build/*.vcxproj.filters
+**/build/*.VC.db
+**/build/*.sln
+**/build/*.sdf
+**/build/*.opensdf
+**/build/*.VC.opendb
+
+# build dirs (Windows)
+**/build/win_vc*/*Debug*/*
+**/build/win_vc*/*Release*/*
+**/build/win_vc*/*Unit Tests*/*
+
+# YouCompleteMe configuration.
+.ycm_extra_conf.py
+
+# ninja build dir
+out
+
+# node modules for node
+node_modules/
+
+# OS X
+.DS_Store
+
+# Emacs
+*~
+
+# vim
+*.swp
+*.swo
+
+# JetBrains
+.idea
+
+# Linux/yocto
+**/build/out.yocto/
+
+# Other stuff
+PluginHooks_Libs/PT/AAX_SDK/Libs/AAXLibrary/mac_xcode/build/
+BuildLog.htm
+*.ncb
+*.aps
+*.plg
+*.opt
+*.pch
+*.idb
+*.pdb
+*.xdb
+*.sbr
+*.obj
+*.ilk
+*.bsc
+*.sup
+*.gid
+*.stc
+*.stt
+*.user
+*.dat
+*.exe
+*.xex
+*.dll
+*.lib
+*.exp
+*.moc
+moc_*.h
+*.qm
+*.lob
+*.WW
+*.suo
+*.chm
+*.mch
+*.perspective
+Thumbs.db
+x64
+win32
+Win32
+RCa?????
+VTune
+*.lod
+*.old
+*.cld
+*.lst
+*.lnt
+*/*/*/*/Lint/*/*/*
+*/*/*/*/Lint/*/*/*/*
+*.vloptions
+iZBase/libs/libxml2/libxml2-*/config.h
+iZBase/libs/libxml2/libxml2-*/include/libxml/xmlversion.h
+**/build/win_vc*/ipch/*
+Xbox 360/
+Xbox 360_Debug/
+Xbox 360_Release/
+resources.resembed
+*.pyc
+*.py.swp
+LintReport.xml
+*.doj
+*.dlb
+*.dxe
+*.tlog
+*.ipch
+Shared/UnitTests/GoogleTestAddIn/bin/
+Shared/UnitTests/GoogleTestAddIn/obj/
+*.log
+*.o
+*.d
+*.dia
+*.swp
+*.vsp
+*.psess
+*.gypd
+*.err
+.btenv/
