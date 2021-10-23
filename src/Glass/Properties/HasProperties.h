@@ -34,16 +34,20 @@ namespace Glass {
 		                          PropertyListHasType<Ps, typename P::impl_type>::value,
 		                          typename P::property_type::type>::type>
 		typename P::property_type::type GetProperty() const {
-			return getPropertyHolder().template GetProperty<typename P::property_type::type>(
-			    Private::getName<P>(nullptr), typename P::property_type::type{});
+			auto maybeValue =
+			    getPropertyHolder().template GetProperty<typename P::property_type::type>(
+			        Private::getName<P>(nullptr));
+			ZASSERT(maybeValue);
+			return *maybeValue;
 		}
 
 		template <typename P, typename = typename std::enable_if<
 		                          PropertyListHasType<Ps, typename P::impl_type>::value,
 		                          typename P::property_type::type>::type>
 		void SetProperty(typename P::property_type::type value) {
-			getPropertyHolder().template SetProperty<typename P::property_type::type>(Private::getName<P>(nullptr),
-			                                                                          value);
+			const auto success =
+			    getPropertyHolder().template SetProperty(Private::getName<P>(nullptr), value);
+			ZASSERT(success);
 		}
 
 
@@ -55,14 +59,17 @@ namespace Glass {
 			for (auto& p :
 			     CreatePropertyDefinitionListForPropertyList(static_cast<U*>(this), Ps{})) {
 				auto defaultValue = p->GetDefaultValue();
-				auto property =
+				const auto success =
 				    getPropertyHolder().CreateProperty(p->GetName(),
 				                                       p->GetTypeName(),
 				                                       std::move(defaultValue.value),
 				                                       std::move(defaultValue.scratchSpace));
+				ZASSERT(success);
 				auto didSet = p->GetDidSetFn();
 				if (didSet) {
-					property.GetSignal()->Connect(&getTrackable(), *didSet);
+					getPropertyHolder()
+					    .GetPropertySignal(p->GetName())
+					    .Connect(&getTrackable(), *didSet);
 				}
 			}
 		}
@@ -70,12 +77,12 @@ namespace Glass {
 		void didSet(void*) {}
 
 	private:
-		const Util::PropertyHolder& getPropertyHolder() const {
-			return static_cast<const U*>(this)->m_propertyHolder;
+		const Burlap::PropertyHolder& getPropertyHolder() const {
+			return *static_cast<const U*>(this)->m_propertyHolder;
 		}
 
-		Util::PropertyHolder& getPropertyHolder() {
-			return static_cast<U*>(this)->m_propertyHolder;
+		Burlap::PropertyHolder& getPropertyHolder() {
+			return *static_cast<U*>(this)->m_propertyHolder;
 		}
 
 		Trackable& getTrackable() { return static_cast<U*>(this)->HasPropertiesBase::m_trackable; }

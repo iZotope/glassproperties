@@ -1,4 +1,6 @@
-{   'sources': [   '../src/Glass/Float4Dim.h',
+{   'sources': [   '../src/Burlap/Properties/PropertyHolder.cpp',
+                   '../src/Burlap/Properties/PropertyHolder.h',
+                   '../src/Glass/Float4Dim.h',
                    '../src/Glass/Properties/HasProperties.h',
                    '../src/Glass/Properties/HasPropertiesBase.cpp',
                    '../src/Glass/Properties/HasPropertiesBase.h',

@@ -26,33 +26,22 @@ using namespace Glass;
 
 
 HasPropertiesBase::HasPropertiesBase()
-    : m_managedPropertyHolder{make_unique<Util::PropertyHolder>()}
-    , m_propertyHolder{*m_managedPropertyHolder.get()} {}
+    : m_managedPropertyHolder{make_unique<Burlap::PropertyHolder>()}
+    , m_propertyHolder{m_managedPropertyHolder.get()} {}
 
-HasPropertiesBase::HasPropertiesBase(Util::PropertyHolder& propertyHolder)
-    : m_propertyHolder{propertyHolder} {}
+HasPropertiesBase::HasPropertiesBase(Burlap::PropertyHolder& propertyHolder)
+    : m_propertyHolder{&propertyHolder} {}
 
 HasPropertiesBase::~HasPropertiesBase() = default;
 
 void HasPropertiesBase::SetStyleSheet(shared_ptr<Util::StyleSheet> styleSheet) {
-	m_propertyHolder.SetStyleSheet(styleSheet);
+	m_propertyHolder->SetStyleSheet(std::move(styleSheet));
 }
 
 void HasPropertiesBase::SetClassNames(const vector<std::string>& classNames) {
-	vector<String> names = classNames | ranges::v3::to_<vector<String>>();
-	m_propertyHolder.SetProperty(Util::PropertyHolder::ClassList::PROPERTY,
-	                             Util::PropertyHolder::ClassList{names});
+	m_propertyHolder->SetClassNames(classNames);
 }
 
-vector<std::string> HasPropertiesBase::GetClassNames() {
-	auto classList = m_propertyHolder.GetProperty<Util::PropertyHolder::ClassList>(
-	    Util::PropertyHolder::ClassList::PROPERTY);
-
-	if (classList.IsValid()) {
-		auto stringList = static_cast<vector<String>>(classList.get());
-		return stringList |
-		       ranges::view::transform([](const String& s) { return s.ToStandardString(); });
-	} else {
-		return vector<std::string>();
-	}
+vector<std::string> HasPropertiesBase::GetClassNames() const {
+	return m_propertyHolder->GetClassNames();
 }

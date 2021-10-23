@@ -15,8 +15,8 @@
 
 #pragma once
 
+#include "Burlap/Properties/PropertyHolder.h"
 #include "Glass/Properties/Private/getName.h"
-#include "iZBase/Util/PropertyHolder.h"
 
 namespace Burlap {
 	template <typename V> class View;
@@ -47,16 +47,16 @@ namespace Glass {
 		//! there are conflicting properties in the stylesheet, later classes in the list will have
 		//! precedence.
 		void SetClassNames(const vector<std::string>& classNames);
-		vector<std::string> GetClassNames();
+		vector<std::string> GetClassNames() const;
 
 	protected:
 		HasPropertiesBase();
 
 	private:
-		HasPropertiesBase(Util::PropertyHolder&);
+		HasPropertiesBase(Burlap::PropertyHolder&);
 
-		unique_ptr<Util::PropertyHolder> m_managedPropertyHolder;
-		Util::PropertyHolder& m_propertyHolder;
+		unique_ptr<Burlap::PropertyHolder> m_managedPropertyHolder;
+		Burlap::PropertyHolder* m_propertyHolder;
 		Trackable m_trackable;
 	};
 }
