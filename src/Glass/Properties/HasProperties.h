@@ -77,11 +77,11 @@ namespace Glass {
 		void didSet(void*) {}
 
 	private:
-		const Burlap::PropertyHolder& getPropertyHolder() const {
+		const SimplePropertyHolder& getPropertyHolder() const {
 			return *static_cast<const U*>(this)->m_propertyHolder;
 		}
 
-		Burlap::PropertyHolder& getPropertyHolder() {
+		SimplePropertyHolder& getPropertyHolder() {
 			return *static_cast<U*>(this)->m_propertyHolder;
 		}
 

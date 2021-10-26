@@ -148,6 +148,7 @@ TEST_F(HasPropertiesTests, Mixin) {
 	ASSERT_EQ(-2, p.GetProperty<IntValue2>());
 }
 
+#ifdef IZ_INTERNAL_BUILD
 TEST_F(HasPropertiesTests, BasicStylesheet) {
 	stylesheet->AddProperty(className, "IntValue", "Int", "5");
 
@@ -188,3 +189,4 @@ TEST_F(HasPropertiesTests, ClassPrecedence) {
 	p.SetStyleSheet(stylesheet);
 	EXPECT_EQ(5, p.GetProperty<IntValue>());
 }
+#endif

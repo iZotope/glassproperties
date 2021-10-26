@@ -26,14 +26,15 @@ using namespace Glass;
 
 
 HasPropertiesBase::HasPropertiesBase()
-    : m_managedPropertyHolder{make_unique<Burlap::PropertyHolder>()}
+    : m_managedPropertyHolder{make_unique<SimplePropertyHolder>()}
     , m_propertyHolder{m_managedPropertyHolder.get()} {}
 
-HasPropertiesBase::HasPropertiesBase(Burlap::PropertyHolder& propertyHolder)
+HasPropertiesBase::HasPropertiesBase(SimplePropertyHolder& propertyHolder)
     : m_propertyHolder{&propertyHolder} {}
 
 HasPropertiesBase::~HasPropertiesBase() = default;
 
+#ifdef IZ_INTERNAL_BUILD
 void HasPropertiesBase::SetStyleSheet(shared_ptr<Util::StyleSheet> styleSheet) {
 	m_propertyHolder->SetStyleSheet(std::move(styleSheet));
 }
@@ -45,3 +46,4 @@ void HasPropertiesBase::SetClassNames(const vector<std::string>& classNames) {
 vector<std::string> HasPropertiesBase::GetClassNames() const {
 	return m_propertyHolder->GetClassNames();
 }
+#endif

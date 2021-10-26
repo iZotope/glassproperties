@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "Burlap/Properties/PropertyHolder.h"
+#include "Glass/Properties/SimplePropertyHolder.h"
 #include "Glass/Properties/Private/getName.h"
 
 namespace Burlap {
@@ -41,22 +41,22 @@ namespace Glass {
 
 	public:
 		virtual ~HasPropertiesBase() = 0;
-
+#ifdef IZ_INTERNAL_BUILD
 		void SetStyleSheet(shared_ptr<Util::StyleSheet> styleSheet);
 		//! Set classes that this object will use to pull properties from a given stylesheet. If
 		//! there are conflicting properties in the stylesheet, later classes in the list will have
 		//! precedence.
 		void SetClassNames(const vector<std::string>& classNames);
 		vector<std::string> GetClassNames() const;
-
+#endif
 	protected:
 		HasPropertiesBase();
 
 	private:
-		HasPropertiesBase(Burlap::PropertyHolder&);
+		HasPropertiesBase(SimplePropertyHolder&);
 
-		unique_ptr<Burlap::PropertyHolder> m_managedPropertyHolder;
-		Burlap::PropertyHolder* m_propertyHolder;
+		unique_ptr<SimplePropertyHolder> m_managedPropertyHolder;
+		SimplePropertyHolder* m_propertyHolder;
 		Trackable m_trackable;
 	};
 }
