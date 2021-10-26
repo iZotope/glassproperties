@@ -100,9 +100,9 @@ namespace {
 	checked_int deserializeInt(const String& strValue) { return strValue.ToInt(); }
 }
 
-static_assert(!Glass::Meta::HasDidSet_v<TestClass, FloatValue>,
+static_assert(!Glass::Meta::HasDidSet<TestClass, FloatValue>,
               "TestClass has a didSet function for FloatValue");
-static_assert(Glass::Meta::HasDidSet_v<TestClass, IntValue>,
+static_assert(Glass::Meta::HasDidSet<TestClass, IntValue>,
               "TestClass does not have a didSet function for IntValue");
 static_assert(std::is_assignable<Glass::PropertyDefinitionBase, IntValue>::value,
               "Can't assign IntValue to Glass::PropertyDefinitionBase");

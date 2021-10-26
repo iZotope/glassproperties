@@ -45,12 +45,12 @@ using detail::TestClass;
 using detail::ThingOne;
 using detail::ThingTwo;
 
-static_assert(PropertyListHasType<typename detail::Properties, ThingOne>::value,
+static_assert(PropertyListHasType<typename detail::Properties, ThingOne>,
               "PropertyListHasType<Properties, ThingOne>::value == false, "
               "should be true.");
-static_assert(PropertyListHasType<typename detail::Properties, ThingTwo>::value,
+static_assert(PropertyListHasType<typename detail::Properties, ThingTwo>,
               "PropertyListHasType<Properties, ThingOne>::value == false, "
               "should be true.");
-static_assert(!PropertyListHasType<typename detail::Properties, Cat>::value,
+static_assert(!PropertyListHasType<typename detail::Properties, Cat>,
               "PropertyListHasType<Properties, ThingOne>::value == true, "
               "should be false.");

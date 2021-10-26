@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include "Glass/Properties/SimplePropertyHolder.h"
 #include "Glass/Properties/Private/getName.h"
 
@@ -40,7 +42,6 @@ namespace Glass {
 		friend class HasToolTip;
 
 	public:
-		virtual ~HasPropertiesBase() = 0;
 #ifdef IZ_INTERNAL_BUILD
 		void SetStyleSheet(shared_ptr<Util::StyleSheet> styleSheet);
 		//! Set classes that this object will use to pull properties from a given stylesheet. If
@@ -51,11 +52,12 @@ namespace Glass {
 #endif
 	protected:
 		HasPropertiesBase();
+		virtual ~HasPropertiesBase();
 
 	private:
 		HasPropertiesBase(SimplePropertyHolder&);
 
-		unique_ptr<SimplePropertyHolder> m_managedPropertyHolder;
+		std::optional<SimplePropertyHolder> m_managedPropertyHolder;
 		SimplePropertyHolder* m_propertyHolder;
 		Trackable m_trackable;
 	};

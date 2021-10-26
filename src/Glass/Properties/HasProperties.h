@@ -17,6 +17,7 @@
 
 #include "Glass/Properties/HasPropertiesBase.h"
 #include "Glass/Properties/PropertyDefinition.h"
+#include "Glass/Properties/Private/CreateProperties.h"
 #include "Glass/Properties/Private/getName.h"
 #include "Glass/Properties/PropertyList.h"
 
@@ -27,26 +28,24 @@ namespace Glass {
 	//! \param U Type inheriting from HasProperties<Ps,U>; must be a subclass of HasPropertiesBase
 	//! \param Ps PropertyList type representing the list of properties held by this class
 	template <typename U, typename Ps> class HasProperties {
-		static_assert(IsPropertyList<Ps>::value, "Ps must be a PropertyList");
+		static_assert(IsPropertyList<Ps>, "Ps must be a PropertyList");
 
 	public:
-		template <typename P, typename = typename std::enable_if<
-		                          PropertyListHasType<Ps, typename P::impl_type>::value,
-		                          typename P::property_type::type>::type>
-		typename P::property_type::type GetProperty() const {
+		template <typename P>
+		std::enable_if_t<PropertyListHasType<Ps, P>, typename P::property_type::type>
+		GetProperty() const {
 			auto maybeValue =
 			    getPropertyHolder().template GetProperty<typename P::property_type::type>(
-			        Private::getName<P>(nullptr));
+			        Private::getName<P>());
 			ZASSERT(maybeValue);
 			return *maybeValue;
 		}
 
-		template <typename P, typename = typename std::enable_if<
-		                          PropertyListHasType<Ps, typename P::impl_type>::value,
-		                          typename P::property_type::type>::type>
-		void SetProperty(typename P::property_type::type value) {
+		template <typename P>
+		std::enable_if_t<PropertyListHasType<Ps, P>, void>
+		SetProperty(typename P::property_type::type value) {
 			const auto success =
-			    getPropertyHolder().template SetProperty(Private::getName<P>(nullptr), value);
+			    getPropertyHolder().template SetProperty(Private::getName<P>(), value);
 			ZASSERT(success);
 		}
 
@@ -55,28 +54,47 @@ namespace Glass {
 		HasProperties() {
 			static_assert(std::is_base_of<HasPropertiesBase, U>::value,
 			              "U must derive from HasPropertiesBase");
-
-			for (auto& p :
-			     CreatePropertyDefinitionListForPropertyList(static_cast<U*>(this), Ps{})) {
-				auto defaultValue = p->GetDefaultValue();
-				const auto success =
-				    getPropertyHolder().CreateProperty(p->GetName(),
-				                                       p->GetTypeName(),
-				                                       std::move(defaultValue.value),
-				                                       std::move(defaultValue.scratchSpace));
-				ZASSERT(success);
-				auto didSet = p->GetDidSetFn();
-				if (didSet) {
-					getPropertyHolder()
-					    .GetPropertySignal(p->GetName())
-					    .Connect(&getTrackable(), *didSet);
-				}
-			}
+			createProperties(Ps{});
 		}
 
 		void didSet(void*) {}
 
 	private:
+		template <typename P> void createProperty() {
+			constexpr bool shouldCallSetNeedsDisplay =
+			    Meta::HasSetNeedsDisplay<U> && Meta::IsDisplayProperty<U>;
+			constexpr bool shouldCallSetNeedsLayout =
+			    Meta::HasSetNeedsLayout<U> && Meta::IsLayoutProperty<U>;
+
+			auto defaultValue = Private::getDefaultValue<P>();
+			const auto success =
+			    getPropertyHolder().CreateProperty(Private::getName<P>(),
+			                                       Private::getName<typename P::property_type>(),
+			                                       std::move(defaultValue.value),
+			                                       std::move(defaultValue.scratchSpace));
+			ZASSERT(success);
+			if constexpr (Meta::HasDidSet<U, P> || shouldCallSetNeedsLayout ||
+			              shouldCallSetNeedsDisplay) {
+				getPropertyHolder()
+				    .GetPropertySignal(Private::getName<P>())
+				    .Connect(&getTrackable(), [this] {
+					    if constexpr (Meta::HasDidSet<U, P>) {
+						    static_cast<U*>(this)->didSet(P{});
+					    }
+					    if constexpr (shouldCallSetNeedsLayout) {
+						    static_cast<U*>(this)->SetNeedsLayout();
+					    }
+					    if constexpr (shouldCallSetNeedsDisplay) {
+						    static_cast<U*>(this)->SetNeedsDisplay();
+					    }
+				    });
+			}
+		}
+
+		template <typename... P> void createProperties(PropertyList<P...>) {
+			(createProperty<P>(), ...);
+		}
+
 		const SimplePropertyHolder& getPropertyHolder() const {
 			return *static_cast<const U*>(this)->m_propertyHolder;
 		}

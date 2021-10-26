@@ -70,7 +70,7 @@ namespace Glass {
 			return {};
 		}
 
-		if (!boost::any_cast<std::remove_cvref_t<T>>(&(it->second.value))) {
+		if (!boost::any_cast<std::remove_cv_t<std::remove_reference_t<T>>>(&(it->second.value))) {
 			return {};
 		}
 

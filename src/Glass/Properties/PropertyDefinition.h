@@ -36,15 +36,17 @@ namespace Glass {
 
 	using DidSetType = std::function<void()>;
 
+	struct PropertyDefaultValue {
+		boost::any scratchSpace;
+		boost::any value;
+	};
+
 	class PropertyDefinitionBase {
 	public:
 		virtual std::string GetName() const = 0;
 		virtual std::string GetTypeName() const = 0;
-		struct DefaultValue {
-			boost::any scratchSpace;
-			boost::any value;
-		};
-		virtual DefaultValue GetDefaultValue() const = 0;
+
+		virtual PropertyDefaultValue GetDefaultValue() const = 0;
 		virtual std::optional<DidSetType> GetDidSetFn() const = 0;
 
 		virtual ~PropertyDefinitionBase() = 0;
@@ -87,8 +89,8 @@ namespace Glass {
 
 		std::string GetName() const override final { return Private::getName<impl_type>(); }
 		std::string GetTypeName() const override { return Private::getName<property_type>(); }
-		DefaultValue GetDefaultValue() const override final {
-			return Private::getDefaultValue<impl_type>(nullptr);
+		PropertyDefaultValue GetDefaultValue() const override final {
+			return Private::getDefaultValue<impl_type>();
 		}
 		std::optional<std::function<void()>> GetDidSetFn() const override final {
 			if (!m_didSet) {

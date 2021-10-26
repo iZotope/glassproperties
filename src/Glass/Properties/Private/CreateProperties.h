@@ -15,21 +15,9 @@
 
 #pragma once
 
-#include <type_traits>
+#include "Glass/Properties/Meta.h"
+#include "Glass/Properties/PropertyList.h"
+#include "Glass/Properties/Private/getName.h"
+#include "Glass/Properties/Private/getDefaultValue.h"
 
-namespace Glass::Private {
-
-	template <typename T, typename = void> constexpr inline bool HasName = false;
-
-	template <typename T> constexpr inline bool HasName<T, std::void_t<decltype(T::name)>> = true;
-
-
-	template <typename T> constexpr auto getName() {
-		static_assert(HasName<T>, "T must have a `name` static member variable or function.");
-		if constexpr (std::is_function_v<decltype(T::name)>) {
-			return T::name();
-		} else {
-			return T::name;
-		}
-	}
-}
+namespace Glass::Private {}

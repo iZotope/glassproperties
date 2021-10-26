@@ -26,8 +26,8 @@ using namespace Glass;
 
 
 HasPropertiesBase::HasPropertiesBase()
-    : m_managedPropertyHolder{make_unique<SimplePropertyHolder>()}
-    , m_propertyHolder{m_managedPropertyHolder.get()} {}
+    : m_managedPropertyHolder{SimplePropertyHolder{}}
+    , m_propertyHolder{&*m_managedPropertyHolder} {}
 
 HasPropertiesBase::HasPropertiesBase(SimplePropertyHolder& propertyHolder)
     : m_propertyHolder{&propertyHolder} {}

@@ -18,44 +18,29 @@
 
 namespace Glass {
 	namespace Meta {
-		template <typename T, typename D, typename = std::void_t<>>
-		struct HasDidSet : std::false_type {};
+		template <typename T, typename D, typename = void> constexpr inline bool HasDidSet = false;
 
 		template <typename T, typename D>
-		struct HasDidSet<T, D, std::void_t<decltype(std::declval<T>().didSet(D{}))>>
-		    : std::true_type {};
+		constexpr inline bool
+		    HasDidSet<T, D, std::void_t<decltype(std::declval<T>().didSet(D{}))>> = true;
 
-		template <typename T, typename D> constexpr bool HasDidSet_v = HasDidSet<T, D>::value;
-
-		template <typename T, typename = std::void_t<>>
-		struct HasSetNeedsLayout : std::false_type {};
+		template <typename T, typename = void> constexpr inline bool HasSetNeedsLayout = false;
 
 		template <typename T>
-		struct HasSetNeedsLayout<T, std::void_t<decltype(std::declval<T>().SetNeedsLayout())>>
-		    : std::true_type {};
+		constexpr inline bool
+		    HasSetNeedsLayout<T, std::void_t<decltype(std::declval<T>().SetNeedsLayout())>> = true;
 
-		template <typename T> constexpr bool HasSetNeedsLayout_v = HasSetNeedsLayout<T>::value;
-
-		template <typename T, typename = std::void_t<>>
-		struct HasSetNeedsDisplay : std::false_type {};
+		template <typename T, typename = void> constexpr inline bool HasSetNeedsDisplay = false;
 
 		template <typename T>
-		struct HasSetNeedsDisplay<T, std::void_t<decltype(std::declval<T>().SetNeedsDisplay())>>
-		    : std::true_type {};
+		constexpr inline bool
+		    HasSetNeedsDisplay<T, std::void_t<decltype(std::declval<T>().SetNeedsDisplay())>> =
+		        true;
 
-		template <typename T> constexpr bool HasSetNeedsDisplay_v = HasSetNeedsDisplay<T>::value;
+		template <typename D>
+		constexpr inline bool IsLayoutProperty = std::is_base_of<LayoutProperty, D>::value;
 
-		template <typename D> struct IsLayoutProperty {
-			static constexpr bool value = std::is_base_of<LayoutProperty, D>::value;
-		};
-
-		template <typename D> constexpr bool IsLayoutProperty_v = IsLayoutProperty<D>::value;
-
-		template <typename D> struct IsDisplayProperty {
-			static constexpr bool value = std::is_base_of<DisplayProperty, D>::value;
-		};
-
-		template <typename D> constexpr bool IsDisplayProperty_v = IsDisplayProperty<D>::value;
-
+		template <typename D>
+		constexpr inline bool IsDisplayProperty = std::is_base_of<DisplayProperty, D>::value;
 	}
 }

@@ -25,14 +25,9 @@ namespace Glass {
 	template <typename... Ts> struct PropertyList {};
 
 	namespace internal {
-		template <typename T> constexpr bool is_type_in_list(PropertyList<>) { return false; }
-
-		template <typename T, typename LT, typename... LTs>
-		constexpr bool is_type_in_list(PropertyList<LT, LTs...>) {
-			if (std::is_same<T, LT>::value) {
-				return true;
-			}
-			return is_type_in_list<T>(PropertyList<LTs...>{});
+		template <typename T, typename... LTs>
+		constexpr bool is_type_in_list(PropertyList<LTs...>) {
+			return (std::is_same_v<T, LTs> || ...);
 		}
 	}
 
@@ -40,16 +35,13 @@ namespace Glass {
 	//!
 	//! \param L PropertyList to verify definition membership
 	//! \param T PropertyDefinition to be verified
-	template <typename L, typename T> struct PropertyListHasType {
-		//! true if PropertyDefinition L is in PropertyList T
-		static const bool value = internal::is_type_in_list<T>(L{});
-	};
+	template <typename L, typename T>
+	constexpr inline bool PropertyListHasType = internal::is_type_in_list<T>(L{});
 
-	template <typename T> struct IsPropertyList { static constexpr bool value = false; };
+	template <typename T> constexpr inline bool IsPropertyList = false;
 
-	template <typename... Ts> struct IsPropertyList<PropertyList<Ts...>> {
-		static constexpr bool value = true;
-	};
+	template <typename... Ts> constexpr inline bool IsPropertyList<PropertyList<Ts...>> = true;
+
 
 	//! A vector of instantiated PropertyDefinition
 	using PropertyDefinitionList = vector<unique_ptr<PropertyDefinitionBase>>;

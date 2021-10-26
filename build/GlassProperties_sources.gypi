@@ -7,6 +7,7 @@
                    '../src/Glass/Properties/HasProperties_tests.cpp',
                    '../src/Glass/Properties/Macros.h',
                    '../src/Glass/Properties/Meta.h',
+                   '../src/Glass/Properties/Private/CreateProperties.h',
                    '../src/Glass/Properties/Private/DidSetFactory.h',
                    '../src/Glass/Properties/Private/GlobalPropertyData.cpp',
                    '../src/Glass/Properties/Private/GlobalPropertyData.h',

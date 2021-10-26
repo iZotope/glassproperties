@@ -20,40 +20,46 @@
 namespace Glass {
 	namespace Private {
 		namespace DidSetFactoryHelper {
-			template <typename T, typename D,
-			          typename = typename std::enable_if<Meta::HasDidSet_v<T, D>, void>::type>
+			template <typename T,
+			          typename D,
+			          typename = typename std::enable_if<Meta::HasDidSet<T, D>, void>::type>
 			static void CallDidSet(T* obj, D def = D{}) {
 				obj->didSet(std::move(def));
 			}
-			template <typename W, typename D,
-			          typename = typename std::enable_if<!Meta::HasDidSet_v<W, D>, void>::type>
+			template <typename W,
+			          typename D,
+			          typename = typename std::enable_if<!Meta::HasDidSet<W, D>, void>::type>
 			static void CallDidSet(W*) {}
 
-			template <typename W, typename D,
-			          typename = typename std::enable_if<Meta::IsLayoutProperty_v<D>, void>::type>
+			template <typename W,
+			          typename D,
+			          typename = typename std::enable_if<Meta::IsLayoutProperty<D>, void>::type>
 			static void CallSetNeedsLayout(W* obj, D* = nullptr) {
 				static_assert(
-				    Meta::HasSetNeedsLayout<W>::value,
+				    Meta::HasSetNeedsLayout<W>,
 				    "W must implement SetNeedsLayout to have a property D of type LayoutProperty.");
 				if (auto parent = obj->GetParent().lock()) {
 					parent->SetNeedsLayout();
 				}
 				obj->SetNeedsLayout();
 			}
-			template <typename W, typename D,
-			          typename = typename std::enable_if<!Meta::IsLayoutProperty_v<D>, void>::type>
+			template <typename W,
+			          typename D,
+			          typename = typename std::enable_if<!Meta::IsLayoutProperty<D>, void>::type>
 			static void CallSetNeedsLayout(W*) {}
 
-			template <typename W, typename D,
-			          typename = typename std::enable_if<Meta::IsDisplayProperty_v<D>, D>::type>
+			template <typename W,
+			          typename D,
+			          typename = typename std::enable_if<Meta::IsDisplayProperty<D>, D>::type>
 			static void CallSetNeedsDisplay(W* this_, D* = nullptr) {
-				static_assert(Meta::HasSetNeedsLayout<W>::value,
+				static_assert(Meta::HasSetNeedsLayout<W>,
 				              "W must implement SetNeedsDisplay to have a property D of type "
 				              "DisplayProperty.");
 				this_->SetNeedsDisplay();
 			}
-			template <typename W, typename D,
-			          typename = typename std::enable_if<!Meta::IsDisplayProperty_v<D>, void>::type>
+			template <typename W,
+			          typename D,
+			          typename = typename std::enable_if<!Meta::IsDisplayProperty<D>, void>::type>
 			static void CallSetNeedsDisplay(W*) {}
 		}
 		template <typename T, typename D, typename R = DidSetType> struct DidSetFactory {
@@ -61,9 +67,10 @@ namespace Glass {
 		};
 		template <typename T, typename D>
 		struct DidSetFactory<
-		    T, D,
-		    typename std::enable_if<Meta::HasDidSet_v<T, D> || Meta::IsLayoutProperty_v<D> ||
-		                                Meta::IsDisplayProperty_v<D>,
+		    T,
+		    D,
+		    typename std::enable_if<Meta::HasDidSet<T, D> || Meta::IsLayoutProperty<D> ||
+		                                Meta::IsDisplayProperty<D>,
 		                            DidSetType>::type> {
 			static DidSetType Create(T* hasProperties) {
 				return [hasProperties]() {
