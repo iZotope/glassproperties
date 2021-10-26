@@ -15,9 +15,8 @@
 
 #pragma once
 
-#include "Glass/Properties/Private/getName.h"
-#include "Glass/Properties/Private/RegisterPropertyType.h"
 #include "Glass/Properties/Types/Meta.h"
+#include "Glass/Properties/Types/ScratchSpaceAndValue.h"
 
 namespace Glass {
 	//! Use PropertyType to define a named property for serialization
@@ -103,16 +102,12 @@ namespace Glass {
 	//!   allowed keypath type.
 	template <typename T, typename = void> struct PropertyType;
 
-	template <typename T>
-	struct PropertyType<T, std::enable_if_t<!IsBetterEnumProperty_v<T>>>
-	    : Private::RegisterPropertyType<T> {
+	template <typename T> struct PropertyType<T, std::enable_if_t<!IsBetterEnumProperty_v<T>>> {
 		using type = T;
 	};
 
 	//! When T is a BETTER_ENUM, name,serialize, and deserialize will be automatically generated
-	template <typename T>
-	struct PropertyType<T, std::enable_if_t<IsBetterEnumProperty_v<T>>>
-	    : Private::RegisterPropertyType<PropertyType<T, void>> {
+	template <typename T> struct PropertyType<T, std::enable_if_t<IsBetterEnumProperty_v<T>>> {
 		using type = T;
 		static std::string name() { return std::string{"Enum: "} + T::_name(); }
 		static std::string serialize(const T& value) { return value._to_string(); }

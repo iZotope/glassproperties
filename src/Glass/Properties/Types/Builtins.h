@@ -17,7 +17,7 @@
 
 #include "Glass/Float4Dim.h"
 #include "Glass/Properties/Types/PropertyType.h"
-#include "Glass/Properties/Private/RegisterPropertyType.h"
+//#include "Glass/Types.h"
 
 namespace Glass {
 	struct IntPropertyType : PropertyType<IntPropertyType> {

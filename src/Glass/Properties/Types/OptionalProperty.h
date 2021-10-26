@@ -17,6 +17,7 @@
 
 #include "Glass/Properties/Private/has_type.h"
 #include "Glass/Properties/Types/PropertyType.h"
+#include "Glass/Properties/Private/getName.h"
 
 namespace Glass {
 	namespace Private {
@@ -57,8 +58,6 @@ namespace Glass {
 	template <typename T, typename = std::void_t<>>
 	struct OptionalProperty : PropertyType<OptionalProperty<T>>, Private::OptionalPropertyBase<T> {
 		using type = typename Private::OptionalPropertyBase<T>::type;
-		// using Private::OptionalPropertyBase<T>::name;
-		using Private::RegisterPropertyType<OptionalProperty<T>>::staticRegistration;
 		struct NoContextTag {};
 
 		static auto serialize(const type& value) -> decltype(T::serialize(*value)) {
@@ -105,8 +104,6 @@ namespace Glass {
 		using type = typename Private::OptionalPropertyBase<T>::type;
 		using scratch_type = std::optional<typename T::scratch_type>;
 		using Deserialized = ScratchSpaceAndValue<scratch_type, type>;
-		// using Private::OptionalPropertyBase<T>::name;
-		using Private::RegisterPropertyType<OptionalProperty<T>>::staticRegistration;
 		struct NoContextTag {};
 
 		static auto serialize(const type& value, const scratch_type* scratch)
